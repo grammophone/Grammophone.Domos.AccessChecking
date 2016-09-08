@@ -54,7 +54,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="entity">The entity to check.</param>
 		/// <returns>Returns the access check response.</returns>
-		public EntityRight CheckAccessToEntity(object entity)
+		public EntityRight GetEntityRight(object entity)
 		{
 			if (entity == null) throw new ArgumentNullException(nameof(entity));
 

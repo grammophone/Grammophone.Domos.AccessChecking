@@ -86,6 +86,191 @@ namespace Grammophone.Domos.AccessChecking
 			return dispositionTypesAccessRightsCache.Get(dispositionTypeCodeNames);
 		}
 
+		/// <summary>
+		/// Determine whether a user can read an entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>, 
+		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// </summary>
+		public static bool CanUserReadEntity(User user, object entity)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
+
+			if (rolesEntityRight.CanRead) return true;
+
+			if (rolesEntityRight.CanReadOwn)
+			{
+				var userTrackingEntity = entity as IUserTrackingEntity;
+
+				if (userTrackingEntity != null)
+				{
+					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+			}
+
+			var segregatedEntity = entity as ISegregatedEntity;
+
+			if (segregatedEntity != null)
+			{
+				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+
+				foreach (var disposition in user.Dispositions)
+				{
+					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+
+					relativeDispositionTypes.Add(disposition.Type);
+				}
+
+				if (relativeDispositionTypes.Count == 0) return false;
+
+				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
+
+				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
+
+				if (dispositionTypesEntityRight.CanRead) return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a user can write an entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>, 
+		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// </summary>
+		public static bool CanUserWriteEntity(User user, object entity)
+		{
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
+
+			if (rolesEntityRight.CanWrite) return true;
+
+			if (rolesEntityRight.CanWriteOwn)
+			{
+				var userTrackingEntity = entity as IUserTrackingEntity;
+
+				if (userTrackingEntity != null)
+				{
+					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+			}
+
+			var segregatedEntity = entity as ISegregatedEntity;
+
+			if (segregatedEntity != null)
+			{
+				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+
+				foreach (var disposition in user.Dispositions)
+				{
+					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+
+					relativeDispositionTypes.Add(disposition.Type);
+				}
+
+				if (relativeDispositionTypes.Count == 0) return false;
+
+				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
+
+				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
+
+				if (dispositionTypesEntityRight.CanWrite) return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a user can delete an entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>, 
+		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// </summary>
+		public static bool CanUserDeleteEntity(User user, object entity)
+		{
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
+
+			if (rolesEntityRight.CanDelete) return true;
+
+			if (rolesEntityRight.CanDeleteOwn)
+			{
+				var userTrackingEntity = entity as IUserTrackingEntity;
+
+				if (userTrackingEntity != null)
+				{
+					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+			}
+
+			var segregatedEntity = entity as ISegregatedEntity;
+
+			if (segregatedEntity != null)
+			{
+				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+
+				foreach (var disposition in user.Dispositions)
+				{
+					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+
+					relativeDispositionTypes.Add(disposition.Type);
+				}
+
+				if (relativeDispositionTypes.Count == 0) return false;
+
+				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
+
+				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
+
+				if (dispositionTypesEntityRight.CanDelete) return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a user can create an entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>, 
+		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// </summary>
+		public static bool CanUserCreateEntity(User user, object entity)
+		{
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
+
+			if (rolesEntityRight.CanCreate) return true;
+
+			var segregatedEntity = entity as ISegregatedEntity;
+
+			if (segregatedEntity != null)
+			{
+				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+
+				foreach (var disposition in user.Dispositions)
+				{
+					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+
+					relativeDispositionTypes.Add(disposition.Type);
+				}
+
+				if (relativeDispositionTypes.Count == 0) return false;
+
+				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
+
+				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
+
+				if (dispositionTypesEntityRight.CanCreate) return true;
+			}
+
+			return false;
+		}
+
 		#endregion
 
 		#region Private methods
