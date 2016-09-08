@@ -89,7 +89,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Determine whether a user can read an entity.
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
-		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
 		public static bool CanUserReadEntity(User user, object entity)
 		{
@@ -140,7 +140,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Determine whether a user can write an entity.
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
-		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
 		public static bool CanUserWriteEntity(User user, object entity)
 		{
@@ -188,7 +188,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Determine whether a user can delete an entity.
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
-		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
 		public static bool CanUserDeleteEntity(User user, object entity)
 		{
@@ -236,7 +236,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Determine whether a user can create an entity.
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
-		/// <see cref="User.Dispositions"/> and <see cref="Disposition.Type"/> are prefetched.
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
 		public static bool CanUserCreateEntity(User user, object entity)
 		{
@@ -266,6 +266,80 @@ namespace Grammophone.Domos.AccessChecking
 				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
 
 				if (dispositionTypesEntityRight.CanCreate) return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determines whether a manager is supported as implied from a
+		/// user's roles only.
+		/// For proper performance, ensure that <see cref="User.Roles"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		public static bool CanUserAccessManager(User user, string managerClassName)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			return rolesAccessRight.SupportsManager(managerClassName);
+		}
+
+		/// <summary>
+		/// Determines whether a manager is supported as implied from a
+		/// user's roles and a disposition she owns as current context.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="currentDisposition">The current disposition.</param>
+		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		public static bool CanUserAccessManager(User user, Disposition currentDisposition, string managerClassName)
+		{
+			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
+
+			long currentDispositionID = currentDisposition.ID;
+
+			return CanUserAccessManager(user, currentDispositionID, managerClassName);
+		}
+
+		/// <summary>
+		/// Determines whether a manager is supported as implied from a
+		/// user's roles and a disposition she owns as current context.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="currentDispositionID">The ID of the current disposition.</param>
+		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		public static bool CanUserAccessManager(User user, long currentDispositionID, string managerClassName)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+
+			foreach (var disposition in user.Dispositions)
+			{
+				if (disposition.ID == currentDispositionID)
+				{
+					AccessRight dispositionAccessRight;
+
+					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+						disposition.Type.CodeName,
+						out dispositionAccessRight))
+					{
+						return dispositionAccessRight.SupportsManager(managerClassName);
+					}
+				}
 			}
 
 			return false;
@@ -303,6 +377,12 @@ namespace Grammophone.Domos.AccessChecking
 			return CombineAccessRights(accessMapper.DispositionTypesAccessRightsByCodeName, dispositionTypeCodeNames);
 		}
 
+		/// <summary>
+		/// Combine selected access rights found in an access rights dictionary.
+		/// </summary>
+		/// <param name="accessRightsMapByCodeName">An access rights dictionary.</param>
+		/// <param name="codeNames">The keys used to fetch items from the dictionary.</param>
+		/// <returns>Returns the combined access right.</returns>
 		private static AccessRight CombineAccessRights(
 			IReadOnlyDictionary<string, AccessRight> accessRightsMapByCodeName, 
 			IEnumerable<string> codeNames)

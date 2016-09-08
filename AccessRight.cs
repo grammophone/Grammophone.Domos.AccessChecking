@@ -50,6 +50,17 @@ namespace Grammophone.Domos.AccessChecking
 		#region Public methods
 
 		/// <summary>
+		/// Determines whether a manager class is supported by the present access right.
+		/// </summary>
+		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		public bool SupportsManager(string managerClassName)
+		{
+			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+
+			return managerClassNames.Contains(managerClassName);
+		}
+
+		/// <summary>
 		/// Get the access rights to an entity based on the present information.
 		/// </summary>
 		/// <param name="entity">The entity to check.</param>
