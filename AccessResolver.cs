@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Grammophone.Caching;
+using Grammophone.Configuration;
+using Grammophone.Domos.AccessChecking.Configuration;
 using Grammophone.Domos.Domain;
 using Grammophone.GenericContentModel;
 
@@ -13,7 +15,7 @@ namespace Grammophone.Domos.AccessChecking
 	/// Static class to aid resolution of access rights of combinations of 
 	/// roles and disposition types.
 	/// </summary>
-	public static class AccessResolver
+	public class AccessResolver
 	{
 		#region Private fields
 
@@ -22,30 +24,35 @@ namespace Grammophone.Domos.AccessChecking
 		/// Ensures that exceptions occured during singleton creation
 		/// will be rethrown during each access.
 		/// </summary>
-		private static Lazy<AccessMapper> lazyAccessMapper;
+		private Lazy<AccessMapper> lazyAccessMapper;
 
 		/// <summary>
 		/// Caches the access rights of combinations of roles.
 		/// The key of the cache is a set of role code names.
 		/// </summary>
-		private static MRUCache<EquatableReadOnlyBag<string>, AccessRight> rolesAccessRightsCache;
+		private MRUCache<EquatableReadOnlyBag<string>, AccessRight> rolesAccessRightsCache;
 
 		/// <summary>
 		/// Caches the access rights of combinations of disposition types.
 		/// The key of the cache is a set of disposition type code names.
 		/// </summary>
-		private static MRUCache<EquatableReadOnlyBag<string>, AccessRight> dispositionTypesAccessRightsCache;
+		private MRUCache<EquatableReadOnlyBag<string>, AccessRight> dispositionTypesAccessRightsCache;
 
 		#endregion
 
 		#region Construction
 
 		/// <summary>
-		/// Static initialization.
+		/// Create.
 		/// </summary>
-		static AccessResolver()
+		/// <param name="permissionsSetupProvider">
+		/// The provider for a <see cref="PermissionsSetup"/> instance.
+		/// </param>
+		public AccessResolver(IPermissionsSetupProvider permissionsSetupProvider)
 		{
-			lazyAccessMapper = new Lazy<AccessMapper>(() => new AccessMapper(), true);
+			if (permissionsSetupProvider == null) throw new ArgumentNullException(nameof(permissionsSetupProvider));
+
+			lazyAccessMapper = new Lazy<AccessMapper>(() => new AccessMapper(permissionsSetupProvider), true);
 
 			rolesAccessRightsCache = 
 				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(CombineAccessRightOfRoles, 128);
@@ -63,7 +70,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="roles">The set of roles.</param>
 		/// <returns>Returns the combined access right.</returns>
-		public static AccessRight GetAccessRightOfRoles(IEnumerable<Role> roles)
+		public AccessRight GetAccessRightOfRoles(IEnumerable<Role> roles)
 		{
 			if (roles == null) throw new ArgumentNullException(nameof(roles));
 
@@ -77,7 +84,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="dispositionTypes">The set of disposition types.</param>
 		/// <returns>Returns the combined access right.</returns>
-		public static AccessRight GetAccessRightOfDispositionTypes(IEnumerable<DispositionType> dispositionTypes)
+		public AccessRight GetAccessRightOfDispositionTypes(IEnumerable<DispositionType> dispositionTypes)
 		{
 			if (dispositionTypes == null) throw new ArgumentNullException(nameof(dispositionTypes));
 
@@ -91,7 +98,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public static bool CanUserReadEntity(User user, object entity)
+		public bool CanUserReadEntity(User user, object entity)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -142,7 +149,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public static bool CanUserWriteEntity(User user, object entity)
+		public bool CanUserWriteEntity(User user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
@@ -190,7 +197,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public static bool CanUserDeleteEntity(User user, object entity)
+		public bool CanUserDeleteEntity(User user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
@@ -238,7 +245,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public static bool CanUserCreateEntity(User user, object entity)
+		public bool CanUserCreateEntity(User user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
@@ -279,7 +286,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public static bool CanUserAccessManager(User user, string managerClassName)
+		public bool CanUserAccessManager(User user, string managerClassName)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
@@ -299,7 +306,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDisposition">The current disposition.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public static bool CanUserAccessManager(User user, Disposition currentDisposition, string managerClassName)
+		public bool CanUserAccessManager(User user, Disposition currentDisposition, string managerClassName)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
@@ -318,7 +325,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDispositionID">The ID of the current disposition.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public static bool CanUserAccessManager(User user, long currentDispositionID, string managerClassName)
+		public bool CanUserAccessManager(User user, long currentDispositionID, string managerClassName)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
@@ -354,7 +361,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="roleCodeNames">The set of role code names as the missed key.</param>
 		/// <returns>Returns the combined access right.</returns>
-		private static AccessRight CombineAccessRightOfRoles(EquatableReadOnlyBag<string> roleCodeNames)
+		private AccessRight CombineAccessRightOfRoles(EquatableReadOnlyBag<string> roleCodeNames)
 		{
 			if (roleCodeNames == null) throw new ArgumentNullException(nameof(roleCodeNames));
 
@@ -368,7 +375,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="dispositionTypeCodeNames">The set of disposition type code names as the missed key.</param>
 		/// <returns>Returns the combined access right.</returns>
-		private static AccessRight CombineAccessRightOfDispositionTypes(EquatableReadOnlyBag<string> dispositionTypeCodeNames)
+		private AccessRight CombineAccessRightOfDispositionTypes(EquatableReadOnlyBag<string> dispositionTypeCodeNames)
 		{
 			if (dispositionTypeCodeNames == null) throw new ArgumentNullException(nameof(dispositionTypeCodeNames));
 

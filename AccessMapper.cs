@@ -27,14 +27,17 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Create.
 		/// </summary>
-		public AccessMapper()
+		/// <param name="permissionsSetupProvider">
+		/// The provider for a <see cref="PermissionsSetup"/> instance.
+		/// </param>
+		public AccessMapper(IPermissionsSetupProvider permissionsSetupProvider)
 		{
-			var configuration = new XamlConfiguration<PermissionsSetup>("permissionsSetup");
+			if (permissionsSetupProvider == null) throw new ArgumentNullException(nameof(permissionsSetupProvider));
+
+			var permissionsSetup = permissionsSetupProvider.Load();
 
 			rolesAccessRightsByCodeName = new Dictionary<string, AccessRight>();
 			dispositionTypeAccessRightsByCodeName = new Dictionary<string, AccessRight>();
-
-			var permissionsSetup = configuration.Settings;
 
 			foreach (var assignment in permissionsSetup.PermissionAssignments)
 			{
