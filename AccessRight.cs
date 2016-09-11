@@ -83,6 +83,21 @@ namespace Grammophone.Domos.AccessChecking
 			}
 		}
 
+		/// <summary>
+		/// Takes care of possible proxy classes containing '_' in their name.
+		/// </summary>
+		public static string GetEntityTypeName(object entity)
+		{
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+			Type type = entity.GetType();
+
+			if (type.Name.Contains('_') && type.BaseType != null)
+				return type.BaseType.FullName;
+			else
+				return type.FullName;
+		}
+
 		#endregion
 
 		#region Internal methods
@@ -142,25 +157,6 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				CombineEntityRight(entityRightEntry.Key, entityRightEntry.Value);
 			}
-		}
-
-		#endregion
-
-		#region Private methods
-
-		/// <summary>
-		/// Takes care of possible proxy classes containing '_' in their name.
-		/// </summary>
-		private static string GetEntityTypeName(object entity)
-		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
-
-			Type type = entity.GetType();
-
-			if (type.Name.Contains('_') && type.BaseType != null)
-				return type.BaseType.FullName;
-			else
-				return type.FullName;
 		}
 
 		#endregion
