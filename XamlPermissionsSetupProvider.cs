@@ -10,13 +10,13 @@ namespace Grammophone.Domos.AccessChecking
 {
 	/// <summary>
 	/// Loads a <see cref="Configuration.PermissionsSetup"/> from
-	/// a XAML file specified in a <see cref="XamlSettingsSection"/>.
+	/// a XAML file.
 	/// </summary>
 	public class XamlPermissionsSetupProvider : IPermissionsSetupProvider
 	{
 		#region Private fields
 
-		private string xamlConfigurationSectionName;
+		private string xamlFilename;
 
 		#endregion
 
@@ -25,15 +25,14 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Create.
 		/// </summary>
-		/// <param name="xamlConfigurationSectionName">
-		/// The name of the configuration sectin of type <see cref="XamlSettingsSection"/>
-		/// specifying the XAML file of a <see cref="PermissionsSetup"/> instance.
+		/// <param name="xamlFilename">
+		/// The name of the XAML file of a <see cref="PermissionsSetup"/> instance.
 		/// </param>
-		public XamlPermissionsSetupProvider(string xamlConfigurationSectionName)
+		public XamlPermissionsSetupProvider(string xamlFilename)
 		{
-			if (xamlConfigurationSectionName == null) throw new ArgumentNullException(nameof(xamlConfigurationSectionName));
+			if (xamlFilename == null) throw new ArgumentNullException(nameof(xamlFilename));
 
-			this.xamlConfigurationSectionName = xamlConfigurationSectionName;
+			this.xamlFilename = xamlFilename;
 		}
 
 		#endregion
@@ -46,9 +45,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		public PermissionsSetup Load()
 		{
-			var configuration = new XamlConfiguration<PermissionsSetup>(xamlConfigurationSectionName);
-
-			return configuration.Settings;
+			return XamlConfiguration<PermissionsSetup>.LoadSettings(xamlFilename);
 		}
 
 		#endregion
