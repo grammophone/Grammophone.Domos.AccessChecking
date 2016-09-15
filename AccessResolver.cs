@@ -349,7 +349,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="stateful">The stateful instance.</param>
 		/// <param name="statePath">The state path to execute.</param>
-		public bool CanAccessStatePath<U>(U user, IStateful<U> stateful, StatePath statePath)
+		public bool CanExecuteStatePath<U>(U user, IStateful<U> stateful, StatePath statePath)
 			where U : User
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
