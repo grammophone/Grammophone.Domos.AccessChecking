@@ -27,6 +27,11 @@ namespace Grammophone.Domos.AccessChecking
 		private HashSet<string> managerClassNames = new HashSet<string>();
 
 		/// <summary>
+		/// Collection of state path code names.
+		/// </summary>
+		private HashSet<string> statePathCodeNames = new HashSet<string>();
+
+		/// <summary>
 		/// Map of entity rights by entity class names.
 		/// </summary>
 		private Dictionary<string, EntityRight> entityRights = new Dictionary<string, EntityRight>();
@@ -36,9 +41,14 @@ namespace Grammophone.Domos.AccessChecking
 		#region Public properties
 
 		/// <summary>
-		/// The set of managers as a dictionary having the manager name as key.
+		/// The set of managers, defined by their class names.
 		/// </summary>
 		public IReadOnlyCollection<string> ManagerClassNames => managerClassNames;
+
+		/// <summary>
+		/// The set of state paths, defined by their code names.
+		/// </summary>
+		public IReadOnlyCollection<string> StatePathCodeNames => statePathCodeNames;
 
 		/// <summary>
 		/// The set of access checks as a dictionary having the entity name as key.
@@ -58,6 +68,42 @@ namespace Grammophone.Domos.AccessChecking
 			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
 
 			return managerClassNames.Contains(managerClassName);
+		}
+
+		/// <summary>
+		/// Determines whether a manager class is supported by the present access right.
+		/// </summary>
+		/// <param name="managerType">The type of the manager class.</param>
+		public bool SupportsManager(Type managerType)
+		{
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
+
+			return SupportsManager(managerType.FullName);
+		}
+
+		/// <summary>
+		/// Determins whether a state path is supported by the present access right.
+		/// </summary>
+		/// <param name="statePathCodeName">
+		/// The <see cref="Domain.Workflow.StatePath.CodeName"/> 
+		/// of the <see cref="Domain.Workflow.StatePath"/>.
+		/// </param>
+		public bool SupportsStatePath(string statePathCodeName)
+		{
+			if (statePathCodeName == null) throw new ArgumentNullException(nameof(statePathCodeName));
+
+			return statePathCodeNames.Contains(statePathCodeName);
+		}
+
+		/// <summary>
+		/// Determins whether a state path is supported by the present access right.
+		/// </summary>
+		/// <param name="statePath">The state path.</param>
+		public bool SupportsStatePath(Domain.Workflow.StatePath statePath)
+		{
+			if (statePath == null) throw new ArgumentNullException(nameof(statePath));
+
+			return SupportsStatePath(statePath.CodeName);
 		}
 
 		/// <summary>
@@ -144,6 +190,13 @@ namespace Grammophone.Domos.AccessChecking
 			existingEntityRight.Combine(entityRight);
 		}
 
+		internal void CombineStatePathAccess(string statePathCodeName)
+		{
+			if (statePathCodeName == null) throw new ArgumentNullException(nameof(statePathCodeName));
+
+			statePathCodeNames.Add(statePathCodeName);
+		}
+
 		internal void Combine(AccessRight otherAccessRight)
 		{
 			if (otherAccessRight == null) throw new ArgumentNullException(nameof(otherAccessRight));
@@ -151,6 +204,11 @@ namespace Grammophone.Domos.AccessChecking
 			foreach (string managerClassName in otherAccessRight.ManagerClassNames)
 			{
 				CombineManagerAccess(managerClassName);
+			}
+
+			foreach (string statePathCodeName in otherAccessRight.StatePathCodeNames)
+			{
+				CombineStatePathAccess(statePathCodeName);
 			}
 
 			foreach (var entityRightEntry in otherAccessRight.EntityRights)

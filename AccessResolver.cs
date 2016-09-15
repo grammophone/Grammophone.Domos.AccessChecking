@@ -7,6 +7,7 @@ using Grammophone.Caching;
 using Grammophone.Configuration;
 using Grammophone.Domos.AccessChecking.Configuration;
 using Grammophone.Domos.Domain;
+using Grammophone.Domos.Domain.Workflow;
 using Grammophone.GenericContentModel;
 
 namespace Grammophone.Domos.AccessChecking
@@ -17,6 +18,20 @@ namespace Grammophone.Domos.AccessChecking
 	/// </summary>
 	public class AccessResolver
 	{
+		#region Constants
+
+		/// <summary>
+		/// Size of <see cref="rolesAccessRightsCache"/>.
+		/// </summary>
+		private const int RolesAccessRightsCacheSize = 128;
+
+		/// <summary>
+		/// Size of <see cref="dispositionTypesAccessRightsCache"/>.
+		/// </summary>
+		private const int DispositionTypesAccessRightsCache = 512;
+
+		#endregion
+
 		#region Private fields
 
 		/// <summary>
@@ -55,15 +70,21 @@ namespace Grammophone.Domos.AccessChecking
 			lazyAccessMapper = new Lazy<AccessMapper>(() => new AccessMapper(permissionsSetupProvider), true);
 
 			rolesAccessRightsCache = 
-				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(CombineAccessRightOfRoles, 128);
+				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(
+					CombineAccessRightOfRoles, 
+					RolesAccessRightsCacheSize);
 
 			dispositionTypesAccessRightsCache =
-				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(CombineAccessRightOfDispositionTypes, 128);
+				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(
+					CombineAccessRightOfDispositionTypes, 
+					DispositionTypesAccessRightsCache);
 		}
 
 		#endregion
 
 		#region Public methods
+
+		#region Basic access rights combination
 
 		/// <summary>
 		/// Get the combined access right of a set of roles.
@@ -92,6 +113,10 @@ namespace Grammophone.Domos.AccessChecking
 
 			return dispositionTypesAccessRightsCache.Get(dispositionTypeCodeNames);
 		}
+
+		#endregion
+
+		#region Entity access checking
 
 		/// <summary>
 		/// Determine whether a user can read an entity.
@@ -123,22 +148,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
-				foreach (var disposition in user.Dispositions)
-				{
-					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
-					relativeDispositionTypes.Add(disposition.Type);
-				}
-
-				if (relativeDispositionTypes.Count == 0) return false;
-
-				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
-
-				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
-
-				if (dispositionTypesEntityRight.CanRead) return true;
+				if (dispositionsEntityRight.CanRead) return true;
 			}
 
 			return false;
@@ -171,22 +185,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
-				foreach (var disposition in user.Dispositions)
-				{
-					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
-					relativeDispositionTypes.Add(disposition.Type);
-				}
-
-				if (relativeDispositionTypes.Count == 0) return false;
-
-				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
-
-				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
-
-				if (dispositionTypesEntityRight.CanWrite) return true;
+				if (dispositionsEntityRight.CanWrite) return true;
 			}
 
 			return false;
@@ -219,22 +222,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+				var dispositionsΑccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
-				foreach (var disposition in user.Dispositions)
-				{
-					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+				var dispositionsEntityRight = dispositionsΑccessRight.GetEntityRight(entity);
 
-					relativeDispositionTypes.Add(disposition.Type);
-				}
-
-				if (relativeDispositionTypes.Count == 0) return false;
-
-				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
-
-				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
-
-				if (dispositionTypesEntityRight.CanDelete) return true;
+				if (dispositionsEntityRight.CanDelete) return true;
 			}
 
 			return false;
@@ -257,26 +249,19 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
-				foreach (var disposition in user.Dispositions)
-				{
-					if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
-					relativeDispositionTypes.Add(disposition.Type);
-				}
-
-				if (relativeDispositionTypes.Count == 0) return false;
-
-				var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
-
-				var dispositionTypesEntityRight = dispositionTypesAccessRight.GetEntityRight(entity);
-
-				if (dispositionTypesEntityRight.CanCreate) return true;
+				if (dispositionsEntityRight.CanCreate) return true;
 			}
 
 			return false;
 		}
+
+		#endregion
+
+		#region Manager access checking
 
 		/// <summary>
 		/// Determines whether a manager is supported as implied from a
@@ -354,6 +339,51 @@ namespace Grammophone.Domos.AccessChecking
 
 		#endregion
 
+		#region State path access checking
+
+		/// <summary>
+		/// Determine whether a user can execute a <see cref="StatePath"/>
+		/// over a stateful instance.
+		/// </summary>
+		/// <typeparam name="U">The type of the user, derived from <see cref="User"/>.</typeparam>
+		/// <param name="user">The user.</param>
+		/// <param name="stateful">The stateful instance.</param>
+		/// <param name="statePath">The state path to execute.</param>
+		public bool CanAccessStatePath<U>(U user, IStateful<U> stateful, StatePath statePath)
+			where U : User
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (stateful == null) throw new ArgumentNullException(nameof(stateful));
+			if (statePath == null) throw new ArgumentNullException(nameof(statePath));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			var rolesStatefulRight = rolesAccessRight.GetEntityRight(stateful);
+
+			if (rolesStatefulRight.CanWrite && rolesAccessRight.SupportsStatePath(statePath))
+				return true;
+
+			var segregatedStateful = stateful as ISegregatedEntity;
+
+			if (segregatedStateful != null)
+			{
+				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedStateful);
+
+				if (dispositionsAccessRight.SupportsStatePath(statePath))
+				{
+					var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(stateful);
+
+					if (dispositionsEntityRight.CanWrite) return true;
+				}
+			}
+
+			return false;
+		}
+
+		#endregion
+
+		#endregion
+
 		#region Private methods
 
 		/// <summary>
@@ -407,6 +437,29 @@ namespace Grammophone.Domos.AccessChecking
 			}
 
 			return combinedAccessRight;
+		}
+
+		/// <summary>
+		/// Get the access right that stems from the <see cref="User.Dispositions"/> of
+		/// a <see cref="User"/> over a segregated entity.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="segregatedEntity">The segregated entity.</param>
+		/// <returns>Returns the combined <see cref="AccessRight"/>.</returns>
+		private AccessRight GetDispositionsAccessRight(User user, ISegregatedEntity segregatedEntity) 
+		{
+			var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+
+			foreach (var disposition in user.Dispositions)
+			{
+				if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
+
+				relativeDispositionTypes.Add(disposition.Type);
+			}
+
+			var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
+
+			return dispositionTypesAccessRight;
 		}
 
 		#endregion
