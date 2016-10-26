@@ -346,11 +346,13 @@ namespace Grammophone.Domos.AccessChecking
 		/// over a stateful instance.
 		/// </summary>
 		/// <typeparam name="U">The type of the user, derived from <see cref="User"/>.</typeparam>
+		/// <typeparam name="ST">The type of state transitions, derived from <see cref="StateTransition{U}"/>.</typeparam>
 		/// <param name="user">The user.</param>
 		/// <param name="stateful">The stateful instance.</param>
 		/// <param name="statePath">The state path to execute.</param>
-		public bool CanExecuteStatePath<U>(U user, IStateful<U> stateful, StatePath statePath)
+		public bool CanExecuteStatePath<U, ST>(U user, IStateful<U, ST> stateful, StatePath statePath)
 			where U : User
+			where ST : StateTransition<U>
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (stateful == null) throw new ArgumentNullException(nameof(stateful));
