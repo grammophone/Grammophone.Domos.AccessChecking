@@ -264,21 +264,85 @@ namespace Grammophone.Domos.AccessChecking
 		#region Manager access checking
 
 		/// <summary>
-		/// Determines whether a manager is supported as implied from a
-		/// user's roles only.
-		/// For proper performance, ensure that <see cref="User.Roles"/>
+		/// Determine whether a manager is supported via the user's roles alone or optionally
+		/// via her dispositions against a segregated entity
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool CanUserAccessManager(User user, string managerClassName)
+		/// <param name="segregatedEntity">The optional segregated entity to check user dispositions against.</param>
+		public bool CanUserAccessManager(User user, string managerClassName, ISegregatedEntity segregatedEntity = null)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (segregatedEntity == null) throw new ArgumentNullException(nameof(segregatedEntity));
+			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			// If roles alone yield access right to the manager, return true.
+			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+
+			if (segregatedEntity != null)
+			{
+				// Determine whether a disposition yeilds access right to the manager.
+				foreach (var disposition in user.Dispositions)
+				{
+					if (disposition.SegregationID == segregatedEntity.SegregationID)
+					{
+						AccessRight dispositionAccessRight;
+
+						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+							disposition.Type.CodeName,
+							out dispositionAccessRight))
+						{
+							if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a manager is supported via the user's roles alone or optionally
+		/// via her dispositions against a segregation
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		/// <param name="segregationID">The ID of the segregation to check user dispositions against.</param>
+		public bool CanUserAccessManager(User user, string managerClassName, long segregationID)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
 
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
-			return rolesAccessRight.SupportsManager(managerClassName);
+			// If roles alone yield access right to the manager, return true.
+			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+
+			// Determine whether a disposition yeilds access right to the manager.
+			foreach (var disposition in user.Dispositions)
+			{
+				if (disposition.SegregationID == segregationID)
+				{
+					AccessRight dispositionAccessRight;
+
+					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+						disposition.Type.CodeName,
+						out dispositionAccessRight))
+					{
+						if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
+					}
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -329,7 +393,7 @@ namespace Grammophone.Domos.AccessChecking
 						disposition.Type.CodeName,
 						out dispositionAccessRight))
 					{
-						return dispositionAccessRight.SupportsManager(managerClassName);
+						if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
 					}
 				}
 			}
