@@ -53,6 +53,11 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		private MRUCache<EquatableReadOnlyBag<string>, AccessRight> dispositionTypesAccessRightsCache;
 
+		/// <summary>
+		/// An access right where everything is denied.
+		/// </summary>
+		private static AccessRight nullAccessRight = new AccessRight();
+
 		#endregion
 
 		#region Construction
@@ -112,6 +117,27 @@ namespace Grammophone.Domos.AccessChecking
 			var dispositionTypeCodeNames = new EquatableReadOnlyBag<string>(dispositionTypes.Select(dt => dt.CodeName));
 
 			return dispositionTypesAccessRightsCache.Get(dispositionTypeCodeNames);
+		}
+
+		/// <summary>
+		/// Get the access rights of a disposition type.
+		/// </summary>
+		/// <param name="dispositionType">The disposition type.</param>
+		/// <returns>Returns the access right.</returns>
+		public AccessRight GetAccessRightOfDispositionType(DispositionType dispositionType)
+		{
+			if (dispositionType == null) throw new ArgumentNullException(nameof(dispositionType));
+
+			AccessRight accessRight;
+
+			if (this.lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(dispositionType.CodeName, out accessRight))
+			{
+				return accessRight;
+			}
+			else
+			{
+				return nullAccessRight;
+			}
 		}
 
 		#endregion
