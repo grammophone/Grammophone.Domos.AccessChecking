@@ -381,13 +381,13 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDisposition">The current disposition.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool CanUserAccessManager(User user, Disposition currentDisposition, string managerClassName)
+		public bool CanUserAccessManagerByDisposition(User user, Disposition currentDisposition, string managerClassName)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
 			long currentDispositionID = currentDisposition.ID;
 
-			return CanUserAccessManager(user, currentDispositionID, managerClassName);
+			return CanUserAccessManagerByDisposition(user, currentDispositionID, managerClassName);
 		}
 
 		/// <summary>
@@ -400,7 +400,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDispositionID">The ID of the current disposition.</param>
 		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool CanUserAccessManager(User user, long currentDispositionID, string managerClassName)
+		public bool CanUserAccessManagerByDisposition(User user, long currentDispositionID, string managerClassName)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
