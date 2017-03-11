@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Grammophone.Domos.Domain;
+using Grammophone.Domos.AccessChecking.Configuration;
 
 namespace Grammophone.Domos.AccessChecking
 {

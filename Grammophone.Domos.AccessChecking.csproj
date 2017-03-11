@@ -51,6 +51,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\EntityAccess.cs" />
+    <Compile Include="Configuration\EntityAccesses.cs" />
+    <Compile Include="Configuration\ManagerAccess.cs" />
+    <Compile Include="Configuration\ManagerAccesses.cs" />
+    <Compile Include="Configuration\Permission.cs" />
+    <Compile Include="Configuration\StatePathAccess.cs" />
+    <Compile Include="Configuration\StatePathAccesses.cs" />
     <Compile Include="IPermissionsSetupProvider.cs" />
     <Compile Include="AccessResolver.cs" />
     <Compile Include="AccessRight.cs" />

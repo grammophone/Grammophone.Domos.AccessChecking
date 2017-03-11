@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Grammophone.Domos.Domain;
+using Grammophone.Domos.AccessChecking.Configuration;
 
 namespace Grammophone.Domos.AccessChecking
 {
 	/// <summary>
 	/// Provides the entity access rights that are assigned to 
 	/// a disposition type, a role or a user.
-	/// It is an aggregation of <see cref="Domain.EntityAccess"/> entries.
+	/// It is an aggregation of <see cref="EntityAccess"/> entries.
 	/// </summary>
 	public class AccessRight
 	{
