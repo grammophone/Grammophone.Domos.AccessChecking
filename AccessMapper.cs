@@ -74,25 +74,32 @@ namespace Grammophone.Domos.AccessChecking
 			if (codeNames == null) throw new ArgumentNullException(nameof(codeNames));
 			if (assignment == null) throw new ArgumentNullException(nameof(assignment));
 
-			foreach (string roleCodeName in codeNames)
+			var permission = assignment.Permission;
+
+			foreach (string codeName in codeNames)
 			{
 				AccessRight accessRight;
 
-				if (!map.TryGetValue(roleCodeName, out accessRight))
+				if (!map.TryGetValue(codeName, out accessRight))
 				{
 					accessRight = new AccessRight();
 
-					map[roleCodeName] = accessRight;
+					map[codeName] = accessRight;
 				}
 
-				foreach (var entityAccess in assignment.Permission.EntityAccesses)
+				foreach (var entityAccess in permission.EntityAccesses)
 				{
 					accessRight.CombineEntityAccess(entityAccess);
 				}
 
-				foreach (var managerAccess in assignment.Permission.ManagerAccesses)
+				foreach (var managerAccess in permission.ManagerAccesses)
 				{
 					accessRight.CombineManagerAccess(managerAccess.ClassName);
+				}
+
+				foreach (var statePathAccess in permission.StatePathAccesses)
+				{
+					accessRight.CombineStatePathAccess(statePathAccess.StatePathCodeName);
 				}
 			}
 		}

@@ -20,8 +20,6 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 
 		private ICollection<string> dispositionTypeCodeNames;
 
-		private ICollection<string> statePathCodeNames;
-
 		#endregion
 
 		#region Public properties
@@ -64,24 +62,6 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 				if (value == null) throw new ArgumentNullException(nameof(value));
 
 				dispositionTypeCodeNames = value;
-			}
-		}
-
-		/// <summary>
-		/// The collection of <see cref="StatePath.CodeName"/>s of the <see cref="StatePath"/>s
-		/// associated to this permission.
-		/// </summary>
-		public ICollection<string> StatePathCodeNames
-		{
-			get
-			{
-				return statePathCodeNames ?? (statePathCodeNames = new HashSet<string>());
-			}
-			set
-			{
-				if (value == null) throw new ArgumentNullException(nameof(value));
-
-				statePathCodeNames = value;
 			}
 		}
 
