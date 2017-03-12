@@ -25,7 +25,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Collection of manager class names.
 		/// </summary>
-		private HashSet<string> managerClassNames = new HashSet<string>();
+		private HashSet<Type> managerTypes = new HashSet<Type>();
 
 		/// <summary>
 		/// Collection of state path code names.
@@ -44,7 +44,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// The set of managers, defined by their class names.
 		/// </summary>
-		public IReadOnlyCollection<string> ManagerClassNames => managerClassNames;
+		public IReadOnlyCollection<Type> ManagerTypes => managerTypes;
 
 		/// <summary>
 		/// The set of state paths, defined by their code names.
@@ -63,23 +63,12 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Determines whether a manager class is supported by the present access right.
 		/// </summary>
-		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool SupportsManager(string managerClassName)
-		{
-			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
-
-			return managerClassNames.Contains(managerClassName);
-		}
-
-		/// <summary>
-		/// Determines whether a manager class is supported by the present access right.
-		/// </summary>
 		/// <param name="managerType">The type of the manager class.</param>
 		public bool SupportsManager(Type managerType)
 		{
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
-			return SupportsManager(managerType.FullName);
+			return managerTypes.Contains(managerType);
 		}
 
 		/// <summary>
@@ -159,11 +148,11 @@ namespace Grammophone.Domos.AccessChecking
 
 		#region Internal methods
 
-		internal void CombineManagerAccess(string managerClassName)
+		internal void CombineManagerAccess(Type managerType)
 		{
-			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
-			managerClassNames.Add(managerClassName);
+			managerTypes.Add(managerType);
 		}
 
 		internal void CombineEntityAccess(EntityAccess entityAccess)
@@ -212,9 +201,9 @@ namespace Grammophone.Domos.AccessChecking
 		{
 			if (otherAccessRight == null) throw new ArgumentNullException(nameof(otherAccessRight));
 
-			foreach (string managerClassName in otherAccessRight.ManagerClassNames)
+			foreach (Type managerType in otherAccessRight.ManagerTypes)
 			{
-				CombineManagerAccess(managerClassName);
+				CombineManagerAccess(managerType);
 			}
 
 			foreach (string statePathCodeName in otherAccessRight.StatePathCodeNames)

@@ -297,18 +297,18 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		/// <param name="managerType">The .NET class type of the manager.</param>
 		/// <param name="segregatedEntity">The optional segregated entity to check user dispositions against.</param>
-		public bool CanUserAccessManager(User user, string managerClassName, ISegregatedEntity segregatedEntity = null)
+		public bool CanUserAccessManager(User user, Type managerType, ISegregatedEntity segregatedEntity = null)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (segregatedEntity == null) throw new ArgumentNullException(nameof(segregatedEntity));
-			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
 			// If roles alone yield access right to the manager, return true.
-			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+			if (rolesAccessRight.SupportsManager(managerType)) return true;
 
 			if (segregatedEntity != null)
 			{
@@ -323,7 +323,7 @@ namespace Grammophone.Domos.AccessChecking
 							disposition.Type.CodeName,
 							out dispositionAccessRight))
 						{
-							if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
+							if (dispositionAccessRight.SupportsManager(managerType)) return true;
 						}
 					}
 				}
@@ -340,17 +340,17 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="managerClassName">The .NET full class name of the manager.</param>
+		/// <param name="managerType">The .NET class type of the manager.</param>
 		/// <param name="segregationID">The ID of the segregation to check user dispositions against.</param>
-		public bool CanUserAccessManager(User user, string managerClassName, long segregationID)
+		public bool CanUserAccessManager(User user, Type managerType, long segregationID)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
-			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
 			// If roles alone yield access right to the manager, return true.
-			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+			if (rolesAccessRight.SupportsManager(managerType)) return true;
 
 			// Determine whether a disposition yeilds access right to the manager.
 			foreach (var disposition in user.Dispositions)
@@ -363,7 +363,7 @@ namespace Grammophone.Domos.AccessChecking
 						disposition.Type.CodeName,
 						out dispositionAccessRight))
 					{
-						if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
+						if (dispositionAccessRight.SupportsManager(managerType)) return true;
 					}
 				}
 			}
@@ -380,14 +380,14 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="currentDisposition">The current disposition.</param>
-		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(User user, Disposition currentDisposition, string managerClassName)
+		/// <param name="managerType">The .NET lass type of the manager.</param>
+		public bool CanUserAccessManagerByDisposition(User user, Disposition currentDisposition, Type managerType)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
 			long currentDispositionID = currentDisposition.ID;
 
-			return CanUserAccessManagerByDisposition(user, currentDispositionID, managerClassName);
+			return CanUserAccessManagerByDisposition(user, currentDispositionID, managerType);
 		}
 
 		/// <summary>
@@ -399,15 +399,15 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="currentDispositionID">The ID of the current disposition.</param>
-		/// <param name="managerClassName">The .NET full class name of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(User user, long currentDispositionID, string managerClassName)
+		/// <param name="managerType">The .NET class type of the manager.</param>
+		public bool CanUserAccessManagerByDisposition(User user, long currentDispositionID, Type managerType)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
-			if (managerClassName == null) throw new ArgumentNullException(nameof(managerClassName));
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
-			if (rolesAccessRight.SupportsManager(managerClassName)) return true;
+			if (rolesAccessRight.SupportsManager(managerType)) return true;
 
 			foreach (var disposition in user.Dispositions)
 			{
@@ -419,7 +419,7 @@ namespace Grammophone.Domos.AccessChecking
 						disposition.Type.CodeName,
 						out dispositionAccessRight))
 					{
-						if (dispositionAccessRight.SupportsManager(managerClassName)) return true;
+						if (dispositionAccessRight.SupportsManager(managerType)) return true;
 					}
 				}
 			}

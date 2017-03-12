@@ -16,10 +16,10 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		#region Primitive properties
 
 		/// <summary>
-		/// A session manager class name serving the permission.
+		/// The .NET type of a session manager serving the permission.
 		/// </summary>
 		[Required]
-		public string ClassName { get; set; }
+		public Type ManagerType { get; set; }
 
 		#endregion
 	}
