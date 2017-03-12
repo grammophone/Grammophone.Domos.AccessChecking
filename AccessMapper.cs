@@ -43,7 +43,7 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				CombineToAccessRightsMap(rolesAccessRightsByCodeName, assignment.RoleReferences, assignment);
 
-				CombineToAccessRightsMap(dispositionTypeAccessRightsByCodeName, assignment.DispositionTypeCodeNames, assignment);
+				CombineToAccessRightsMap(dispositionTypeAccessRightsByCodeName, assignment.DispositionReferences, assignment);
 			}
 		}
 

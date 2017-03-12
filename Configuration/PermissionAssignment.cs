@@ -51,7 +51,7 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// The collection of references to <see cref="DispositionType"/>s
 		/// associated to this permission.
 		/// </summary>
-		public References DispositionTypeCodeNames
+		public References DispositionReferences
 		{
 			get
 			{
