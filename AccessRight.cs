@@ -131,13 +131,23 @@ namespace Grammophone.Domos.AccessChecking
 		}
 
 		/// <summary>
+		/// Get the name of the type of an entity.
 		/// Takes care of possible proxy classes containing '_' in their name.
 		/// </summary>
 		public static string GetEntityTypeName(object entity)
 		{
 			if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-			Type type = entity.GetType();
+			return GetTypeName(entity.GetType());
+		}
+
+		/// <summary>
+		/// Get the name of an entity type.
+		/// Takes care of possible proxy classes containing '_' in their name.
+		/// </summary>
+		public static string GetTypeName(Type type)
+		{
+			if (type == null) throw new ArgumentNullException(nameof(type));
 
 			if (type.Name.Contains('_') && type.BaseType != null)
 				return type.BaseType.FullName;
@@ -162,11 +172,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			EntityRight entityRight;
 
-			if (!entityRights.TryGetValue(entityAccess.EntityName, out entityRight))
+			if (!entityRights.TryGetValue(entityAccess.EntityTypeName, out entityRight))
 			{
 				entityRight = new AccessChecking.EntityRight(entityAccess);
 
-				entityRights[entityAccess.EntityName] = entityRight;
+				entityRights[entityAccess.EntityTypeName] = entityRight;
 			}
 			else
 			{

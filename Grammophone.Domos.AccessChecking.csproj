@@ -56,6 +56,8 @@
     <Compile Include="Configuration\ManagerAccess.cs" />
     <Compile Include="Configuration\ManagerAccesses.cs" />
     <Compile Include="Configuration\Permission.cs" />
+    <Compile Include="Configuration\Reference.cs" />
+    <Compile Include="Configuration\References.cs" />
     <Compile Include="Configuration\StatePathAccess.cs" />
     <Compile Include="Configuration\StatePathAccesses.cs" />
     <Compile Include="IPermissionsSetupProvider.cs" />

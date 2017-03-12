@@ -16,9 +16,9 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 	{
 		#region Private fields
 
-		private ICollection<string> roleCodeNames;
+		private References roleReferences;
 
-		private ICollection<string> dispositionTypeCodeNames;
+		private References dispositionTypeRerferences;
 
 		#endregion
 
@@ -30,38 +30,38 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		public Permission Permission { get; set; }
 
 		/// <summary>
-		/// The collection of <see cref="Role.CodeName"/>s of <see cref="Role"/>s
+		/// The collection of references to <see cref="Role"/>s
 		/// associated to this permission.
 		/// </summary>
-		public ICollection<string> RoleCodeNames
+		public References RoleReferences
 		{
 			get
 			{
-				return roleCodeNames ?? (roleCodeNames = new HashSet<string>());
+				return roleReferences ?? (roleReferences = new References());
 			}
 			set
 			{
 				if (value == null) throw new ArgumentNullException(nameof(value));
 
-				roleCodeNames = value;
+				roleReferences = value;
 			}
 		}
 
 		/// <summary>
-		/// The collection of <see cref="DispositionType.CodeName"/>s of <see cref="DispositionType"/>s
+		/// The collection of references to <see cref="DispositionType"/>s
 		/// associated to this permission.
 		/// </summary>
-		public ICollection<string> DispositionTypeCodeNames
+		public References DispositionTypeCodeNames
 		{
 			get
 			{
-				return dispositionTypeCodeNames ?? (dispositionTypeCodeNames = new HashSet<string>());
+				return dispositionTypeRerferences ?? (dispositionTypeRerferences = new References());
 			}
 			set
 			{
 				if (value == null) throw new ArgumentNullException(nameof(value));
 
-				dispositionTypeCodeNames = value;
+				dispositionTypeRerferences = value;
 			}
 		}
 

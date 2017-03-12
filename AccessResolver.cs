@@ -448,11 +448,14 @@ namespace Grammophone.Domos.AccessChecking
 			if (stateful == null) throw new ArgumentNullException(nameof(stateful));
 			if (statePath == null) throw new ArgumentNullException(nameof(statePath));
 
+			if (!CanUserReadEntity(user, stateful) || !CanUserWriteEntity(user, stateful))
+				return false;
+
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
 			var rolesStatefulRight = rolesAccessRight.GetEntityRight(stateful);
 
-			if (rolesStatefulRight.CanWrite && rolesAccessRight.SupportsStatePath(statePath))
+			if (rolesAccessRight.SupportsStatePath(statePath))
 				return true;
 
 			var segregatedStateful = stateful as ISegregatedEntity;

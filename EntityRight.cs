@@ -121,9 +121,5 @@ namespace Grammophone.Domos.AccessChecking
 		}
 
 		#endregion
-
-		#region Operators
-
-		#endregion
 	}
 }

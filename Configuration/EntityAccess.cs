@@ -1,6 +1,7 @@
 ﻿using Grammophone.Domos.Domain;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -14,22 +15,52 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 	[Serializable]
 	public class EntityAccess 
 	{
+		#region Private fields
+
+		/// <summary>
+		/// Backing field for <see cref="EntityType"/>.
+		/// </summary>
+		private Type entityType;
+
+		#endregion
+
 		#region Primitive properties
 
 		/// <summary>
-		/// The full name of the entity class for which access is defined.
+		/// The entity type for which access is defined.
 		/// </summary>
 		[Required]
-		public string EntityName { get; set; }
+		public Type EntityType
+		{
+			get
+			{
+				return entityType;
+			}
+			set
+			{
+				if (value == null) throw new ArgumentNullException(nameof(value));
+
+				entityType = value;
+
+				this.EntityTypeName = AccessRight.GetTypeName(value);
+			}
+		}
+
+		/// <summary>
+		/// The full name of the <see cref="EntityType"/> for which access is defined.
+		/// </summary>
+		public string EntityTypeName { get; private set; }
 
 		/// <summary>
 		/// If true, the user can create entities of the requested type.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanCreate { get; set; }
 
 		/// <summary>
 		/// If true, the user can read entities of the requested type.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanRead { get; set; }
 
 		/// <summary>
@@ -37,11 +68,13 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
 		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanReadOwn { get; set; }
 
 		/// <summary>
 		/// If true, the user can read entities of the requested type.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanWrite { get; set; }
 
 		/// <summary>
@@ -49,11 +82,13 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
 		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanWriteOwn { get; set; }
 
 		/// <summary>
 		/// If true, the user can delete entities of the requested type.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanDelete { get; set; }
 
 		/// <summary>
@@ -61,6 +96,7 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
 		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
+		[DefaultValue(false)]
 		public bool CanDeleteOwn { get; set; }
 
 		#endregion

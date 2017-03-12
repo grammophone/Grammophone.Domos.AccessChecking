@@ -41,7 +41,7 @@ namespace Grammophone.Domos.AccessChecking
 
 			foreach (var assignment in permissionsSetup.PermissionAssignments)
 			{
-				CombineToAccessRightsMap(rolesAccessRightsByCodeName, assignment.RoleCodeNames, assignment);
+				CombineToAccessRightsMap(rolesAccessRightsByCodeName, assignment.RoleReferences, assignment);
 
 				CombineToAccessRightsMap(dispositionTypeAccessRightsByCodeName, assignment.DispositionTypeCodeNames, assignment);
 			}
@@ -67,17 +67,19 @@ namespace Grammophone.Domos.AccessChecking
 
 		private static void CombineToAccessRightsMap(
 			IDictionary<string, AccessRight> map, 
-			IEnumerable<string> codeNames, 
+			References references, 
 			PermissionAssignment assignment)
 		{
 			if (map == null) throw new ArgumentNullException(nameof(map));
-			if (codeNames == null) throw new ArgumentNullException(nameof(codeNames));
+			if (references == null) throw new ArgumentNullException(nameof(references));
 			if (assignment == null) throw new ArgumentNullException(nameof(assignment));
 
 			var permission = assignment.Permission;
 
-			foreach (string codeName in codeNames)
+			foreach (var reference in references)
 			{
+				string codeName = reference.CodeName;
+
 				AccessRight accessRight;
 
 				if (!map.TryGetValue(codeName, out accessRight))
