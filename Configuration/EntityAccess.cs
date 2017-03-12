@@ -58,6 +58,14 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		public bool CanCreate { get; set; }
 
 		/// <summary>
+		/// If true, the user can create entities owned by by her of the requested 
+		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
+		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// </summary>
+		[DefaultValue(false)]
+		public bool CanCreateOwn { get; set; }
+
+		/// <summary>
 		/// If true, the user can read entities of the requested type.
 		/// </summary>
 		[DefaultValue(false)]

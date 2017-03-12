@@ -16,7 +16,9 @@ namespace Grammophone.Domos.AccessChecking
 	/// Static class to aid resolution of access rights of combinations of 
 	/// roles and disposition types.
 	/// </summary>
-	public class AccessResolver
+	/// <typeparam name="U">The type of the user, derived from <see cref="User"/>.</typeparam>
+	public class AccessResolver<U>
+		where U : User
 	{
 		#region Constants
 
@@ -149,7 +151,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public bool CanUserReadEntity(User user, object entity)
+		public bool CanUserReadEntity(U user, object entity)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -167,6 +169,13 @@ namespace Grammophone.Domos.AccessChecking
 				if (userTrackingEntity != null)
 				{
 					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+
+				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
+
+				if (userGroupTrackingEntity != null)
+				{
+					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
 				}
 			}
 
@@ -189,7 +198,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public bool CanUserWriteEntity(User user, object entity)
+		public bool CanUserWriteEntity(U user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
@@ -204,6 +213,13 @@ namespace Grammophone.Domos.AccessChecking
 				if (userTrackingEntity != null)
 				{
 					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+
+				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
+
+				if (userGroupTrackingEntity != null)
+				{
+					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
 				}
 			}
 
@@ -226,7 +242,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public bool CanUserDeleteEntity(User user, object entity)
+		public bool CanUserDeleteEntity(U user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
@@ -263,13 +279,30 @@ namespace Grammophone.Domos.AccessChecking
 		/// For proper performance, ensure that <see cref="User.Roles"/>, 
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/> are prefetched.
 		/// </summary>
-		public bool CanUserCreateEntity(User user, object entity)
+		public bool CanUserCreateEntity(U user, object entity)
 		{
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
 
 			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
 
 			if (rolesEntityRight.CanCreate) return true;
+
+			if (rolesEntityRight.CanCreateOwn)
+			{
+				var userTrackingEntity = entity as IUserTrackingEntity;
+
+				if (userTrackingEntity != null)
+				{
+					if (userTrackingEntity.OwningUserID == user.ID) return true;
+				}
+
+				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
+
+				if (userGroupTrackingEntity != null)
+				{
+					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
+				}
+			}
 
 			var segregatedEntity = entity as ISegregatedEntity;
 
@@ -299,7 +332,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="managerType">The .NET class type of the manager.</param>
 		/// <param name="segregatedEntity">The optional segregated entity to check user dispositions against.</param>
-		public bool CanUserAccessManager(User user, Type managerType, ISegregatedEntity segregatedEntity = null)
+		public bool CanUserAccessManager(U user, Type managerType, ISegregatedEntity segregatedEntity = null)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (segregatedEntity == null) throw new ArgumentNullException(nameof(segregatedEntity));
@@ -342,7 +375,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="managerType">The .NET class type of the manager.</param>
 		/// <param name="segregationID">The ID of the segregation to check user dispositions against.</param>
-		public bool CanUserAccessManager(User user, Type managerType, long segregationID)
+		public bool CanUserAccessManager(U user, Type managerType, long segregationID)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
@@ -381,7 +414,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDisposition">The current disposition.</param>
 		/// <param name="managerType">The .NET lass type of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(User user, Disposition currentDisposition, Type managerType)
+		public bool CanUserAccessManagerByDisposition(U user, Disposition currentDisposition, Type managerType)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
@@ -400,7 +433,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="currentDispositionID">The ID of the current disposition.</param>
 		/// <param name="managerType">The .NET class type of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(User user, long currentDispositionID, Type managerType)
+		public bool CanUserAccessManagerByDisposition(U user, long currentDispositionID, Type managerType)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
@@ -435,13 +468,11 @@ namespace Grammophone.Domos.AccessChecking
 		/// Determine whether a user can execute a <see cref="StatePath"/>
 		/// over a stateful instance.
 		/// </summary>
-		/// <typeparam name="U">The type of the user, derived from <see cref="User"/>.</typeparam>
 		/// <typeparam name="ST">The type of state transitions, derived from <see cref="StateTransition{U}"/>.</typeparam>
 		/// <param name="user">The user.</param>
 		/// <param name="stateful">The stateful instance.</param>
 		/// <param name="statePath">The state path to execute.</param>
-		public bool CanExecuteStatePath<U, ST>(U user, IStateful<U, ST> stateful, StatePath statePath)
-			where U : User
+		public bool CanExecuteStatePath<ST>(U user, IStateful<U, ST> stateful, StatePath statePath)
 			where ST : StateTransition<U>
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));

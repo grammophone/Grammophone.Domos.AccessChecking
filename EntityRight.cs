@@ -48,13 +48,21 @@ namespace Grammophone.Domos.AccessChecking
 		public bool CanCreate { get; set; }
 
 		/// <summary>
+		/// If true, the user can create entities owned by her of the requested 
+		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
+		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// </summary>
+		public bool CanCreateOwn { get; set; }
+
+		/// <summary>
 		/// If true, the user can read entities of the requested type.
 		/// </summary>
 		public bool CanRead { get; private set; }
 
 		/// <summary>
 		/// If true, the user can read entities created by her of the requested 
-		/// type. This applies to entities derived from <see cref="IUserTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
+		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
 		public bool CanReadOwn { get; private set; }
 
@@ -65,7 +73,8 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can read entities created by her of the requested 
-		/// type. This applies to entities derived from <see cref="IUserTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
+		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
 		public bool CanWriteOwn { get; private set; }
 
@@ -76,7 +85,8 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can delete entities created by her of the requested 
-		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
+		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
 		/// </summary>
 		public bool CanDeleteOwn { get; private set; }
 
@@ -92,6 +102,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (entityAccess == null) throw new ArgumentNullException(nameof(entityAccess));
 
 			this.CanCreate = this.CanCreate || entityAccess.CanCreate;
+			this.CanCreateOwn = this.CanCreateOwn || entityAccess.CanCreateOwn;
 			this.CanRead = this.CanRead || entityAccess.CanRead;
 			this.CanReadOwn = this.CanReadOwn || entityAccess.CanReadOwn;
 			this.CanWrite = this.CanWrite || entityAccess.CanWrite;
@@ -110,6 +121,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (otherEntityRight == null) throw new ArgumentNullException(nameof(otherEntityRight));
 
 			this.CanCreate = this.CanCreate || otherEntityRight.CanCreate;
+			this.CanCreateOwn = this.CanCreateOwn || otherEntityRight.CanCreateOwn;
 			this.CanRead = this.CanRead || otherEntityRight.CanRead;
 			this.CanReadOwn = this.CanReadOwn || otherEntityRight.CanReadOwn;
 			this.CanWrite = this.CanWrite || otherEntityRight.CanWrite;
