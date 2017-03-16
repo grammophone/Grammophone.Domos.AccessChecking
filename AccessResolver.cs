@@ -13,7 +13,7 @@ using Grammophone.GenericContentModel;
 namespace Grammophone.Domos.AccessChecking
 {
 	/// <summary>
-	/// Static class to aid resolution of access rights of combinations of 
+	/// Class to aid resolution of access rights of combinations of
 	/// roles and disposition types.
 	/// </summary>
 	/// <typeparam name="U">The type of the user, derived from <see cref="User"/>.</typeparam>
