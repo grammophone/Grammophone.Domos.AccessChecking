@@ -335,7 +335,6 @@ namespace Grammophone.Domos.AccessChecking
 		public bool CanUserAccessManager(U user, Type managerType, ISegregatedEntity segregatedEntity = null)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
-			if (segregatedEntity == null) throw new ArgumentNullException(nameof(segregatedEntity));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
 			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
