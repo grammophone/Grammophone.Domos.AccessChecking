@@ -33,6 +33,11 @@ namespace Grammophone.Domos.AccessChecking
 		private HashSet<string> statePathCodeNames = new HashSet<string>();
 
 		/// <summary>
+		/// Collection of permission code names.
+		/// </summary>
+		private HashSet<string> permissionCodeNames = new HashSet<string>();
+
+		/// <summary>
 		/// Map of entity rights by entity class names.
 		/// </summary>
 		private Dictionary<string, EntityRight> entityRights = new Dictionary<string, EntityRight>();
@@ -52,6 +57,11 @@ namespace Grammophone.Domos.AccessChecking
 		public IReadOnlyCollection<string> StatePathCodeNames => statePathCodeNames;
 
 		/// <summary>
+		/// The set of permissions, defined by their code names.
+		/// </summary>
+		public IReadOnlyCollection<string> PermissionCodeNames => permissionCodeNames;
+
+		/// <summary>
 		/// The set of access checks as a dictionary having the entity name as key.
 		/// </summary>
 		public IReadOnlyDictionary<string, EntityRight> EntityRights => entityRights;
@@ -69,6 +79,19 @@ namespace Grammophone.Domos.AccessChecking
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
 			return managerTypes.Contains(managerType);
+		}
+
+		/// <summary>
+		/// Determine whether a permissions is granted to the present access right.
+		/// </summary>
+		/// <param name="permissionCodeName">
+		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
+		/// </param>
+		public bool HasPermission(string permissionCodeName)
+		{
+			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
+
+			return permissionCodeNames.Contains(permissionCodeName);
 		}
 
 		/// <summary>
@@ -190,6 +213,13 @@ namespace Grammophone.Domos.AccessChecking
 			existingEntityRight.Combine(entityRight);
 		}
 
+		internal void CombinePermission(string permissionCodeName)
+		{
+			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
+
+			permissionCodeNames.Add(permissionCodeName);
+		}
+
 		internal void CombineStatePathAccess(string statePathCodeName)
 		{
 			if (statePathCodeName == null) throw new ArgumentNullException(nameof(statePathCodeName));
@@ -204,6 +234,11 @@ namespace Grammophone.Domos.AccessChecking
 			foreach (Type managerType in otherAccessRight.ManagerTypes)
 			{
 				CombineManagerAccess(managerType);
+			}
+
+			foreach (string permissionCodeName in otherAccessRight.PermissionCodeNames)
+			{
+				CombinePermission(permissionCodeName);
 			}
 
 			foreach (string statePathCodeName in otherAccessRight.StatePathCodeNames)

@@ -26,10 +26,10 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		#region Primitive properties
 
 		/// <summary>
-		/// A descriptive name of the permission.
+		/// A code name of the permission.
 		/// </summary>
 		[Required]
-		public string Name { get; set; }
+		public string CodeName { get; set; }
 
 		#endregion
 

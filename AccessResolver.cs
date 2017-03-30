@@ -324,7 +324,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// Determine whether a manager is supported via the user's roles alone or optionally
-		/// via her dispositions against a segregated entity
+		/// via her dispositions against a segregated entity.
 		/// For proper performance, ensure that <see cref="User.Roles"/>,
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
 		/// are prefetched.
@@ -366,7 +366,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// Determine whether a manager is supported via the user's roles alone or optionally
-		/// via her dispositions against a segregation
+		/// via her dispositions against a segregation.
 		/// For proper performance, ensure that <see cref="User.Roles"/>,
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
 		/// are prefetched.
@@ -452,6 +452,151 @@ namespace Grammophone.Domos.AccessChecking
 						out dispositionAccessRight))
 					{
 						if (dispositionAccessRight.SupportsManager(managerType)) return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		#endregion
+
+		#region Permissions checking
+
+		/// <summary>
+		/// Determine whether a user has a permission via the user's roles alone or optionally
+		/// via her dispositions against a segregated entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="permissionCodeName">
+		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
+		/// </param>
+		/// <param name="segregatedEntity">The optional segregated entity to check user dispositions against.</param>
+		public bool UserHasPermission(U user, string permissionCodeName, ISegregatedEntity segregatedEntity = null)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			// If roles alone yield access right to the permission, return true.
+			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
+
+			if (segregatedEntity != null)
+			{
+				// Determine whether a disposition yeilds access right to the manager.
+				foreach (var disposition in user.Dispositions)
+				{
+					if (disposition.SegregationID == segregatedEntity.SegregationID)
+					{
+						AccessRight dispositionAccessRight;
+
+						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+							disposition.Type.CodeName,
+							out dispositionAccessRight))
+						{
+							if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a user has a permission via the user's roles alone or optionally
+		/// via her dispositions against a segregation.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="permissionCodeName">
+		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
+		/// </param>
+		/// <param name="segregationID">The ID of the segregation to check user dispositions against.</param>
+		public bool UserHasPermission(U user, string permissionCodeName, long segregationID)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			// If roles alone yield access right to the manager, return true.
+			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
+
+			// Determine whether a disposition yeilds access right to the manager.
+			foreach (var disposition in user.Dispositions)
+			{
+				if (disposition.SegregationID == segregationID)
+				{
+					AccessRight dispositionAccessRight;
+
+					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+						disposition.Type.CodeName,
+						out dispositionAccessRight))
+					{
+						if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determines whether a user has a permission as implied from a
+		/// user's roles and a disposition she owns as current context.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="currentDisposition">The current disposition.</param>
+		/// <param name="permissionCodeName">The .NET lass type of the manager.</param>
+		public bool UserHasPermissionByDisposition(U user, Disposition currentDisposition, string permissionCodeName)
+		{
+			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
+
+			long currentDispositionID = currentDisposition.ID;
+
+			return UserHasPermissionByDisposition(user, currentDispositionID, permissionCodeName);
+		}
+
+		/// <summary>
+		/// Determines whether a user has a permission as implied from a
+		/// user's roles and a disposition she owns as current context.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="currentDispositionID">The ID of the current disposition.</param>
+		/// <param name="permissionCodeName">The .NET class type of the manager.</param>
+		public bool UserHasPermissionByDisposition(U user, long currentDispositionID, string permissionCodeName)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
+
+			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+
+			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
+
+			foreach (var disposition in user.Dispositions)
+			{
+				if (disposition.ID == currentDispositionID)
+				{
+					AccessRight dispositionAccessRight;
+
+					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+						disposition.Type.CodeName,
+						out dispositionAccessRight))
+					{
+						if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
 					}
 				}
 			}

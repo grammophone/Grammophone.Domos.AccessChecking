@@ -99,6 +99,8 @@ namespace Grammophone.Domos.AccessChecking
 					accessRight.CombineManagerAccess(managerAccess.ManagerType);
 				}
 
+				accessRight.CombinePermission(permission.CodeName);
+
 				foreach (var statePathAccess in permission.StatePathAccesses)
 				{
 					accessRight.CombineStatePathAccess(statePathAccess.StatePathCodeName);
