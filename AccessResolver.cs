@@ -557,7 +557,9 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="currentDisposition">The current disposition.</param>
-		/// <param name="permissionCodeName">The .NET lass type of the manager.</param>
+		/// <param name="permissionCodeName">
+		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
+		/// </param>
 		public bool UserHasPermissionByDisposition(U user, Disposition currentDisposition, string permissionCodeName)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
@@ -576,7 +578,9 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		/// <param name="user">The user.</param>
 		/// <param name="currentDispositionID">The ID of the current disposition.</param>
-		/// <param name="permissionCodeName">The .NET class type of the manager.</param>
+		/// <param name="permissionCodeName">
+		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
+		/// </param>
 		public bool UserHasPermissionByDisposition(U user, long currentDispositionID, string permissionCodeName)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
