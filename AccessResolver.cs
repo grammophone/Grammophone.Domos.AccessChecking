@@ -411,15 +411,15 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="currentDisposition">The current disposition.</param>
 		/// <param name="managerType">The .NET lass type of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(U user, Disposition currentDisposition, Type managerType)
+		/// <param name="currentDisposition">The current disposition.</param>
+		public bool CanUserAccessManagerByDisposition(U user, Type managerType, Disposition currentDisposition)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
 			long currentDispositionID = currentDisposition.ID;
 
-			return CanUserAccessManagerByDisposition(user, currentDispositionID, managerType);
+			return CanUserAccessManagerByDisposition(user, managerType, currentDispositionID);
 		}
 
 		/// <summary>
@@ -430,9 +430,9 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="currentDispositionID">The ID of the current disposition.</param>
 		/// <param name="managerType">The .NET class type of the manager.</param>
-		public bool CanUserAccessManagerByDisposition(U user, long currentDispositionID, Type managerType)
+		/// <param name="currentDispositionID">The ID of the current disposition.</param>
+		public bool CanUserAccessManagerByDisposition(U user, Type managerType, long currentDispositionID)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
@@ -556,17 +556,17 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="currentDisposition">The current disposition.</param>
 		/// <param name="permissionCodeName">
 		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
 		/// </param>
-		public bool UserHasPermissionByDisposition(U user, Disposition currentDisposition, string permissionCodeName)
+		/// <param name="currentDisposition">The current disposition.</param>
+		public bool UserHasPermissionByDisposition(U user, string permissionCodeName, Disposition currentDisposition)
 		{
 			if (currentDisposition == null) throw new ArgumentNullException(nameof(currentDisposition));
 
 			long currentDispositionID = currentDisposition.ID;
 
-			return UserHasPermissionByDisposition(user, currentDispositionID, permissionCodeName);
+			return UserHasPermissionByDisposition(user, permissionCodeName, currentDispositionID);
 		}
 
 		/// <summary>
@@ -577,11 +577,11 @@ namespace Grammophone.Domos.AccessChecking
 		/// are prefetched.
 		/// </summary>
 		/// <param name="user">The user.</param>
-		/// <param name="currentDispositionID">The ID of the current disposition.</param>
 		/// <param name="permissionCodeName">
 		/// The <see cref="Permission.CodeName"/> of the <see cref="Permission"/>.
 		/// </param>
-		public bool UserHasPermissionByDisposition(U user, long currentDispositionID, string permissionCodeName)
+		/// <param name="currentDispositionID">The ID of the current disposition.</param>
+		public bool UserHasPermissionByDisposition(U user, string permissionCodeName, long currentDispositionID)
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
