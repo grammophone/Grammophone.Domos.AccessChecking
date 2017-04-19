@@ -20,6 +20,10 @@ namespace Grammophone.Domos.AccessChecking
 
 		private Dictionary<string, AccessRight> dispositionTypeAccessRightsByCodeName;
 
+		private string[] defaultRolesForAuthenticated;
+
+		private string[] defaultRolesForAnonymous;
+
 		#endregion
 
 		#region Cosntruction
@@ -41,10 +45,16 @@ namespace Grammophone.Domos.AccessChecking
 
 			foreach (var assignment in permissionsSetup.PermissionAssignments)
 			{
-				CombineToAccessRightsMap(rolesAccessRightsByCodeName, assignment.RoleReferences, assignment);
+				CombineToAccessRightsMap(rolesAccessRightsByCodeName, assignment.Roles, assignment);
 
-				CombineToAccessRightsMap(dispositionTypeAccessRightsByCodeName, assignment.DispositionReferences, assignment);
+				CombineToAccessRightsMap(dispositionTypeAccessRightsByCodeName, assignment.DispositionTypes, assignment);
 			}
+
+			defaultRolesForAuthenticated =
+				permissionsSetup.DefaultRolesForAuthenticated.Select(r => r.CodeName).ToArray();
+
+			defaultRolesForAnonymous =
+				permissionsSetup.DefaultRolesForAnonymous.Select(r => r.CodeName).ToArray();
 		}
 
 		#endregion
@@ -60,6 +70,16 @@ namespace Grammophone.Domos.AccessChecking
 		/// Access rights implied by disposition types, indexed by their <see cref="Domain.DispositionType.CodeName"/>.
 		/// </summary>
 		public IReadOnlyDictionary<string, AccessRight> DispositionTypesAccessRightsByCodeName => dispositionTypeAccessRightsByCodeName;
+
+		/// <summary>
+		/// Code names of default roles owned by authenticated users.
+		/// </summary>
+		public IReadOnlyList<string> DefaultRolesForAuthenticated => defaultRolesForAuthenticated;
+
+		/// <summary>
+		/// Code names of default roles owned by anonymous users.
+		/// </summary>
+		public IReadOnlyList<string> DefaultRolesForAnonymous => defaultRolesForAnonymous;
 
 		#endregion
 

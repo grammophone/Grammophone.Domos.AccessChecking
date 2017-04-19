@@ -16,9 +16,9 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 	{
 		#region Private fields
 
-		private References roleReferences;
+		private References roles;
 
-		private References dispositionTypeRerferences;
+		private References dispositionTypes;
 
 		#endregion
 
@@ -33,17 +33,17 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// The collection of references to <see cref="Role"/>s
 		/// associated to this permission.
 		/// </summary>
-		public References RoleReferences
+		public References Roles
 		{
 			get
 			{
-				return roleReferences ?? (roleReferences = new References());
+				return roles ?? (roles = new References());
 			}
 			set
 			{
 				if (value == null) throw new ArgumentNullException(nameof(value));
 
-				roleReferences = value;
+				roles = value;
 			}
 		}
 
@@ -51,17 +51,17 @@ namespace Grammophone.Domos.AccessChecking.Configuration
 		/// The collection of references to <see cref="DispositionType"/>s
 		/// associated to this permission.
 		/// </summary>
-		public References DispositionReferences
+		public References DispositionTypes
 		{
 			get
 			{
-				return dispositionTypeRerferences ?? (dispositionTypeRerferences = new References());
+				return dispositionTypes ?? (dispositionTypes = new References());
 			}
 			set
 			{
 				if (value == null) throw new ArgumentNullException(nameof(value));
 
-				dispositionTypeRerferences = value;
+				dispositionTypes = value;
 			}
 		}
 

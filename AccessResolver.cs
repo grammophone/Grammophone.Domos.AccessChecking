@@ -25,12 +25,12 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Size of <see cref="rolesAccessRightsCache"/>.
 		/// </summary>
-		private const int RolesAccessRightsCacheSize = 128;
+		private const int RolesAccessRightsCacheSize = 4096;
 
 		/// <summary>
 		/// Size of <see cref="dispositionTypesAccessRightsCache"/>.
 		/// </summary>
-		private const int DispositionTypesAccessRightsCache = 512;
+		private const int DispositionTypesAccessRightsCache = 4096;
 
 		#endregion
 
@@ -94,17 +94,47 @@ namespace Grammophone.Domos.AccessChecking
 		#region Basic access rights combination
 
 		/// <summary>
-		/// Get the combined access right of a set of roles.
+		/// Get the access right derived from the user's roles,
+		/// including those speified in <see cref="User.Roles"/> proeprty of the <see cref="User"/>
+		/// and those implied by <see cref="PermissionsSetup.DefaultRolesForAuthenticated"/>
+		/// or <see cref="PermissionsSetup.DefaultRolesForAnonymous"/>.
 		/// </summary>
-		/// <param name="roles">The set of roles.</param>
+		/// <param name="user">The user whose set of specified and implied roles to check.</param>
 		/// <returns>Returns the combined access right.</returns>
-		public AccessRight GetAccessRightOfRoles(IEnumerable<Role> roles)
+		public AccessRight GetRolesAccessRight(U user)
 		{
-			if (roles == null) throw new ArgumentNullException(nameof(roles));
+			if (user == null) throw new ArgumentNullException(nameof(user));
 
-			var roleCodeNames = new EquatableReadOnlyBag<string>(roles.Select(r => r.CodeName));
+			// Combine default roles and user roles.
 
-			return rolesAccessRightsCache.Get(roleCodeNames);
+			IReadOnlyList<string> defaultRoleCodeNames;
+
+			if (user.IsAnonymous)
+			{
+				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAnonymous;
+			}
+			else
+			{
+				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAuthenticated;
+			}
+
+			string[] roleCodeNames = new string[user.Roles.Count + defaultRoleCodeNames.Count];
+
+			int i = 0;
+
+			// Add default roles.
+			for (i = 0; i < defaultRoleCodeNames.Count; i++)
+			{
+				roleCodeNames[i] = defaultRoleCodeNames[i];
+			}
+
+			// Add user roles.
+			foreach (var role in user.Roles)
+			{
+				roleCodeNames[i++] = role.CodeName;
+			}
+
+			return rolesAccessRightsCache.Get(new EquatableReadOnlyBag<string>(roleCodeNames));
 		}
 
 		/// <summary>
@@ -156,7 +186,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
 
@@ -164,18 +194,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanReadOwn)
 			{
-				var userTrackingEntity = entity as IUserTrackingEntity;
+				var ownedEntity = entity as IOwnedEntity<U>;
 
-				if (userTrackingEntity != null)
+				if (ownedEntity != null)
 				{
-					if (userTrackingEntity.OwningUserID == user.ID) return true;
-				}
-
-				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
-
-				if (userGroupTrackingEntity != null)
-				{
-					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
+					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
@@ -200,7 +223,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		public bool CanUserWriteEntity(U user, object entity)
 		{
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
 
@@ -208,18 +231,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanWriteOwn)
 			{
-				var userTrackingEntity = entity as IUserTrackingEntity;
+				var ownedEntity = entity as IOwnedEntity<U>;
 
-				if (userTrackingEntity != null)
+				if (ownedEntity != null)
 				{
-					if (userTrackingEntity.OwningUserID == user.ID) return true;
-				}
-
-				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
-
-				if (userGroupTrackingEntity != null)
-				{
-					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
+					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
@@ -244,7 +260,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		public bool CanUserDeleteEntity(U user, object entity)
 		{
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
 
@@ -252,11 +268,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanDeleteOwn)
 			{
-				var userTrackingEntity = entity as IUserTrackingEntity;
+				var ownedEntity = entity as IOwnedEntity<U>;
 
-				if (userTrackingEntity != null)
+				if (ownedEntity != null)
 				{
-					if (userTrackingEntity.OwningUserID == user.ID) return true;
+					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
@@ -281,7 +297,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// </summary>
 		public bool CanUserCreateEntity(U user, object entity)
 		{
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			var rolesEntityRight = rolesAccessRight.GetEntityRight(entity);
 
@@ -289,18 +305,11 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanCreateOwn)
 			{
-				var userTrackingEntity = entity as IUserTrackingEntity;
+				var ownedEntity = entity as IOwnedEntity<U>;
 
-				if (userTrackingEntity != null)
+				if (ownedEntity != null)
 				{
-					if (userTrackingEntity.OwningUserID == user.ID) return true;
-				}
-
-				var userGroupTrackingEntity = entity as IUserGroupTrackingEntity<U>;
-
-				if (userGroupTrackingEntity != null)
-				{
-					if (userGroupTrackingEntity.OwningUsers.Contains(user)) return true;
+					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
@@ -337,7 +346,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			// If roles alone yield access right to the manager, return true.
 			if (rolesAccessRight.SupportsManager(managerType)) return true;
@@ -379,7 +388,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			// If roles alone yield access right to the manager, return true.
 			if (rolesAccessRight.SupportsManager(managerType)) return true;
@@ -437,7 +446,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			if (rolesAccessRight.SupportsManager(managerType)) return true;
 
@@ -480,7 +489,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			// If roles alone yield access right to the permission, return true.
 			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
@@ -524,7 +533,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			// If roles alone yield access right to the manager, return true.
 			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
@@ -586,7 +595,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (user == null) throw new ArgumentNullException(nameof(user));
 			if (permissionCodeName == null) throw new ArgumentNullException(nameof(permissionCodeName));
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
 
@@ -630,7 +639,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (!CanUserReadEntity(user, stateful) || !CanUserWriteEntity(user, stateful))
 				return false;
 
-			var rolesAccessRight = GetAccessRightOfRoles(user.Roles);
+			var rolesAccessRight = GetRolesAccessRight(user);
 
 			var rolesStatefulRight = rolesAccessRight.GetEntityRight(stateful);
 
