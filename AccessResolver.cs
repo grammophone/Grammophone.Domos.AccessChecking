@@ -211,6 +211,16 @@ namespace Grammophone.Domos.AccessChecking
 				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
 				if (dispositionsEntityRight.CanRead) return true;
+
+				if (dispositionsEntityRight.CanReadOwn && !rolesEntityRight.CanReadOwn)
+				{
+					var ownedEntity = entity as IOwnedEntity<U>;
+
+					if (ownedEntity != null)
+					{
+						if (ownedEntity.IsOwnedBy(user)) return true;
+					}
+				}
 			}
 
 			return false;
@@ -248,6 +258,16 @@ namespace Grammophone.Domos.AccessChecking
 				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
 				if (dispositionsEntityRight.CanWrite) return true;
+
+				if (dispositionsEntityRight.CanWriteOwn && !rolesEntityRight.CanWriteOwn)
+				{
+					var ownedEntity = entity as IOwnedEntity<U>;
+
+					if (ownedEntity != null)
+					{
+						if (ownedEntity.IsOwnedBy(user)) return true;
+					}
+				}
 			}
 
 			return false;
@@ -285,6 +305,16 @@ namespace Grammophone.Domos.AccessChecking
 				var dispositionsEntityRight = dispositionsΑccessRight.GetEntityRight(entity);
 
 				if (dispositionsEntityRight.CanDelete) return true;
+
+				if (dispositionsEntityRight.CanDeleteOwn && !rolesEntityRight.CanDeleteOwn)
+				{
+					var ownedEntity = entity as IOwnedEntity<U>;
+
+					if (ownedEntity != null)
+					{
+						if (ownedEntity.IsOwnedBy(user)) return true;
+					}
+				}
 			}
 
 			return false;
@@ -322,6 +352,16 @@ namespace Grammophone.Domos.AccessChecking
 				var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
 
 				if (dispositionsEntityRight.CanCreate) return true;
+
+				if (dispositionsEntityRight.CanCreateOwn && !rolesEntityRight.CanCreateOwn)
+				{
+					var ownedEntity = entity as IOwnedEntity<U>;
+
+					if (ownedEntity != null)
+					{
+						if (ownedEntity.IsOwnedBy(user)) return true;
+					}
+				}
 			}
 
 			return false;
