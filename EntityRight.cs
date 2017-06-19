@@ -30,6 +30,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (entityAccess == null) throw new ArgumentNullException(nameof(entityAccess));
 
 			this.CanCreate = entityAccess.CanCreate;
+			this.CanCreateOwn = entityAccess.CanCreateOwn;
 			this.CanRead = entityAccess.CanRead;
 			this.CanReadOwn = entityAccess.CanReadOwn;
 			this.CanWrite = entityAccess.CanWrite;
