@@ -242,7 +242,6 @@ namespace Grammophone.Domos.AccessChecking
 				}
 			}
 
-
 			if (entity is ISegregatedEntity segregatedEntity)
 			{
 				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
@@ -324,7 +323,6 @@ namespace Grammophone.Domos.AccessChecking
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
-
 
 			if (entity is ISegregatedEntity segregatedEntity)
 			{
@@ -657,12 +655,7 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedStateful);
 
-				if (dispositionsAccessRight.SupportsStatePath(statePath))
-				{
-					var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(stateful);
-
-					if (dispositionsEntityRight.CanWrite) return true;
-				}
+				return dispositionsAccessRight.SupportsStatePath(statePath);
 			}
 
 			return false;
