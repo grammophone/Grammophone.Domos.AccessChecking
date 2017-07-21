@@ -9,7 +9,7 @@ using Grammophone.Domos.AccessChecking.Configuration;
 namespace Grammophone.Domos.AccessChecking
 {
 	/// <summary>
-	/// Loads a <see cref="Configuration.PermissionsSetup"/> from
+	/// Loads a <see cref="PermissionsSetup"/> from
 	/// a XAML file.
 	/// </summary>
 	public class XamlPermissionsSetupProvider : IPermissionsSetupProvider

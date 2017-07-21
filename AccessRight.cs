@@ -130,9 +130,7 @@ namespace Grammophone.Domos.AccessChecking
 
 			string entityTypeName = GetEntityTypeName(entity);
 
-			EntityRight existingEntityRight;
-
-			if (this.EntityRights.TryGetValue(entityTypeName, out existingEntityRight))
+			if (this.EntityRights.TryGetValue(entityTypeName, out EntityRight existingEntityRight))
 			{
 				return existingEntityRight;
 			}
@@ -182,9 +180,8 @@ namespace Grammophone.Domos.AccessChecking
 		{
 			if (entityAccess == null) throw new ArgumentNullException(nameof(entityAccess));
 
-			EntityRight entityRight;
 
-			if (!entityRights.TryGetValue(entityAccess.EntityTypeName, out entityRight))
+			if (!entityRights.TryGetValue(entityAccess.EntityTypeName, out EntityRight entityRight))
 			{
 				entityRight = new AccessChecking.EntityRight(entityAccess);
 
@@ -201,9 +198,8 @@ namespace Grammophone.Domos.AccessChecking
 			if (entityClassName == null) throw new ArgumentNullException(nameof(entityClassName));
 			if (entityRight == null) throw new ArgumentNullException(nameof(entityRight));
 
-			EntityRight existingEntityRight;
 
-			if (!entityRights.TryGetValue(entityClassName, out existingEntityRight))
+			if (!entityRights.TryGetValue(entityClassName, out EntityRight existingEntityRight))
 			{
 				existingEntityRight = new EntityRight();
 

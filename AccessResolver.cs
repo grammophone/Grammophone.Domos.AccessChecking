@@ -160,9 +160,9 @@ namespace Grammophone.Domos.AccessChecking
 		{
 			if (dispositionType == null) throw new ArgumentNullException(nameof(dispositionType));
 
-			AccessRight accessRight;
-
-			if (this.lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(dispositionType.CodeName, out accessRight))
+			if (this.lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
+				dispositionType.CodeName, 
+				out AccessRight accessRight))
 			{
 				return accessRight;
 			}
@@ -194,17 +194,14 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanReadOwn)
 			{
-				var ownedEntity = entity as IOwnedEntity<U>;
-
-				if (ownedEntity != null)
+				if (entity is IOwnedEntity<U> ownedEntity)
 				{
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
-			var segregatedEntity = entity as ISegregatedEntity;
 
-			if (segregatedEntity != null)
+			if (entity is ISegregatedEntity segregatedEntity)
 			{
 				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
@@ -214,9 +211,7 @@ namespace Grammophone.Domos.AccessChecking
 
 				if (dispositionsEntityRight.CanReadOwn && !rolesEntityRight.CanReadOwn)
 				{
-					var ownedEntity = entity as IOwnedEntity<U>;
-
-					if (ownedEntity != null)
+					if (entity is IOwnedEntity<U> ownedEntity)
 					{
 						if (ownedEntity.IsOwnedBy(user)) return true;
 					}
@@ -241,17 +236,14 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanWriteOwn)
 			{
-				var ownedEntity = entity as IOwnedEntity<U>;
-
-				if (ownedEntity != null)
+				if (entity is IOwnedEntity<U> ownedEntity)
 				{
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
-			var segregatedEntity = entity as ISegregatedEntity;
 
-			if (segregatedEntity != null)
+			if (entity is ISegregatedEntity segregatedEntity)
 			{
 				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
@@ -261,9 +253,7 @@ namespace Grammophone.Domos.AccessChecking
 
 				if (dispositionsEntityRight.CanWriteOwn && !rolesEntityRight.CanWriteOwn)
 				{
-					var ownedEntity = entity as IOwnedEntity<U>;
-
-					if (ownedEntity != null)
+					if (entity is IOwnedEntity<U> ownedEntity)
 					{
 						if (ownedEntity.IsOwnedBy(user)) return true;
 					}
@@ -288,17 +278,13 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanDeleteOwn)
 			{
-				var ownedEntity = entity as IOwnedEntity<U>;
-
-				if (ownedEntity != null)
+				if (entity is IOwnedEntity<U> ownedEntity)
 				{
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
-			var segregatedEntity = entity as ISegregatedEntity;
-
-			if (segregatedEntity != null)
+			if (entity is ISegregatedEntity segregatedEntity)
 			{
 				var dispositionsΑccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
@@ -308,9 +294,7 @@ namespace Grammophone.Domos.AccessChecking
 
 				if (dispositionsEntityRight.CanDeleteOwn && !rolesEntityRight.CanDeleteOwn)
 				{
-					var ownedEntity = entity as IOwnedEntity<U>;
-
-					if (ownedEntity != null)
+					if (entity is IOwnedEntity<U> ownedEntity)
 					{
 						if (ownedEntity.IsOwnedBy(user)) return true;
 					}
@@ -335,17 +319,14 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (rolesEntityRight.CanCreateOwn)
 			{
-				var ownedEntity = entity as IOwnedEntity<U>;
-
-				if (ownedEntity != null)
+				if (entity is IOwnedEntity<U> ownedEntity)
 				{
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
 
-			var segregatedEntity = entity as ISegregatedEntity;
 
-			if (segregatedEntity != null)
+			if (entity is ISegregatedEntity segregatedEntity)
 			{
 				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
 
@@ -355,9 +336,7 @@ namespace Grammophone.Domos.AccessChecking
 
 				if (dispositionsEntityRight.CanCreateOwn && !rolesEntityRight.CanCreateOwn)
 				{
-					var ownedEntity = entity as IOwnedEntity<U>;
-
-					if (ownedEntity != null)
+					if (entity is IOwnedEntity<U> ownedEntity)
 					{
 						if (ownedEntity.IsOwnedBy(user)) return true;
 					}
@@ -398,11 +377,9 @@ namespace Grammophone.Domos.AccessChecking
 				{
 					if (disposition.SegregationID == segregatedEntity.SegregationID)
 					{
-						AccessRight dispositionAccessRight;
-
 						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 							disposition.Type.CodeName,
-							out dispositionAccessRight))
+							out AccessRight dispositionAccessRight))
 						{
 							if (dispositionAccessRight.SupportsManager(managerType)) return true;
 						}
@@ -438,11 +415,9 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				if (disposition.SegregationID == segregationID)
 				{
-					AccessRight dispositionAccessRight;
-
 					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 						disposition.Type.CodeName,
-						out dispositionAccessRight))
+						out AccessRight dispositionAccessRight))
 					{
 						if (dispositionAccessRight.SupportsManager(managerType)) return true;
 					}
@@ -494,11 +469,9 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				if (disposition.ID == currentDispositionID)
 				{
-					AccessRight dispositionAccessRight;
-
 					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 						disposition.Type.CodeName,
-						out dispositionAccessRight))
+						out AccessRight dispositionAccessRight))
 					{
 						if (dispositionAccessRight.SupportsManager(managerType)) return true;
 					}
@@ -541,11 +514,9 @@ namespace Grammophone.Domos.AccessChecking
 				{
 					if (disposition.SegregationID == segregatedEntity.SegregationID)
 					{
-						AccessRight dispositionAccessRight;
-
 						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 							disposition.Type.CodeName,
-							out dispositionAccessRight))
+							out AccessRight dispositionAccessRight))
 						{
 							if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
 						}
@@ -583,11 +554,9 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				if (disposition.SegregationID == segregationID)
 				{
-					AccessRight dispositionAccessRight;
-
 					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 						disposition.Type.CodeName,
-						out dispositionAccessRight))
+						out AccessRight dispositionAccessRight))
 					{
 						if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
 					}
@@ -643,11 +612,9 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				if (disposition.ID == currentDispositionID)
 				{
-					AccessRight dispositionAccessRight;
-
 					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
 						disposition.Type.CodeName,
-						out dispositionAccessRight))
+						out AccessRight dispositionAccessRight))
 					{
 						if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
 					}
@@ -686,9 +653,7 @@ namespace Grammophone.Domos.AccessChecking
 			if (rolesAccessRight.SupportsStatePath(statePath))
 				return true;
 
-			var segregatedStateful = stateful as ISegregatedEntity;
-
-			if (segregatedStateful != null)
+			if (stateful is ISegregatedEntity segregatedStateful)
 			{
 				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedStateful);
 
@@ -751,9 +716,8 @@ namespace Grammophone.Domos.AccessChecking
 
 			foreach (string codeName in codeNames)
 			{
-				AccessRight accessRight;
 
-				if (accessRightsMapByCodeName.TryGetValue(codeName, out accessRight))
+				if (accessRightsMapByCodeName.TryGetValue(codeName, out AccessRight accessRight))
 				{
 					combinedAccessRight.Combine(accessRight);
 				}
