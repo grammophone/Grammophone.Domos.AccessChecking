@@ -50,8 +50,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can create entities owned by her of the requested 
-		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
-		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IOwnedEntity{U}"/>.
 		/// </summary>
 		public bool CanCreateOwn { get; set; }
 
@@ -62,8 +61,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can read entities created by her of the requested 
-		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
-		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IOwnedEntity{U}"/>.
 		/// </summary>
 		public bool CanReadOwn { get; private set; }
 
@@ -74,8 +72,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can read entities created by her of the requested 
-		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
-		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IOwnedEntity{U}"/>.
 		/// </summary>
 		public bool CanWriteOwn { get; private set; }
 
@@ -86,8 +83,7 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// If true, the user can delete entities created by her of the requested 
-		/// type. This applies to entities implementing <see cref="IUserTrackingEntity{U}"/>
-		/// or <see cref="IUserGroupTrackingEntity{U}"/>.
+		/// type. This applies to entities implementing <see cref="IOwnedEntity{U}"/>.
 		/// </summary>
 		public bool CanDeleteOwn { get; private set; }
 
