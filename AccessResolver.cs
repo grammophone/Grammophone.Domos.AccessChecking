@@ -30,7 +30,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <summary>
 		/// Size of <see cref="dispositionTypesAccessRightsCache"/>.
 		/// </summary>
-		private const int DispositionTypesAccessRightsCache = 4096;
+		private const int DispositionTypesAccessRightsCacheSize = 4096;
 
 		#endregion
 
@@ -84,7 +84,7 @@ namespace Grammophone.Domos.AccessChecking
 			dispositionTypesAccessRightsCache =
 				new MRUCache<EquatableReadOnlyBag<string>, AccessRight>(
 					CombineAccessRightOfDispositionTypes, 
-					DispositionTypesAccessRightsCache);
+					DispositionTypesAccessRightsCacheSize);
 		}
 
 		#endregion
@@ -199,7 +199,6 @@ namespace Grammophone.Domos.AccessChecking
 					if (ownedEntity.IsOwnedBy(user)) return true;
 				}
 			}
-
 
 			if (entity is ISegregatedEntity segregatedEntity)
 			{
@@ -370,19 +369,10 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				// Determine whether a disposition yeilds access right to the manager.
-				foreach (var disposition in user.Dispositions)
-				{
-					if (disposition.SegregationID == segregatedEntity.SegregationID)
-					{
-						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
-							disposition.Type.CodeName,
-							out AccessRight dispositionAccessRight))
-						{
-							if (dispositionAccessRight.SupportsManager(managerType)) return true;
-						}
-					}
-				}
+				// Determine whether a disposition yields access right to the manager.
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
+
+				return dispositionsAccessRight.SupportsManager(managerType);
 			}
 
 			return false;
@@ -408,21 +398,10 @@ namespace Grammophone.Domos.AccessChecking
 			// If roles alone yield access right to the manager, return true.
 			if (rolesAccessRight.SupportsManager(managerType)) return true;
 
-			// Determine whether a disposition yeilds access right to the manager.
-			foreach (var disposition in user.Dispositions)
-			{
-				if (disposition.SegregationID == segregationID)
-				{
-					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
-						disposition.Type.CodeName,
-						out AccessRight dispositionAccessRight))
-					{
-						if (dispositionAccessRight.SupportsManager(managerType)) return true;
-					}
-				}
-			}
+			// Determine whether a disposition yields access right to the manager.
+			var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
 
-			return false;
+			return dispositionsAccessRight.SupportsManager(managerType);
 		}
 
 		/// <summary>
@@ -507,19 +486,10 @@ namespace Grammophone.Domos.AccessChecking
 
 			if (segregatedEntity != null)
 			{
-				// Determine whether a disposition yeilds access right to the manager.
-				foreach (var disposition in user.Dispositions)
-				{
-					if (disposition.SegregationID == segregatedEntity.SegregationID)
-					{
-						if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
-							disposition.Type.CodeName,
-							out AccessRight dispositionAccessRight))
-						{
-							if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
-						}
-					}
-				}
+				// Determine whether a disposition yields access right to the manager.
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedEntity);
+
+				return dispositionsAccessRight.HasPermission(permissionCodeName);
 			}
 
 			return false;
@@ -547,21 +517,10 @@ namespace Grammophone.Domos.AccessChecking
 			// If roles alone yield access right to the manager, return true.
 			if (rolesAccessRight.HasPermission(permissionCodeName)) return true;
 
-			// Determine whether a disposition yeilds access right to the manager.
-			foreach (var disposition in user.Dispositions)
-			{
-				if (disposition.SegregationID == segregationID)
-				{
-					if (lazyAccessMapper.Value.DispositionTypesAccessRightsByCodeName.TryGetValue(
-						disposition.Type.CodeName,
-						out AccessRight dispositionAccessRight))
-					{
-						if (dispositionAccessRight.HasPermission(permissionCodeName)) return true;
-					}
-				}
-			}
+			// Determine whether a disposition yields access right to the manager.
+			var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
 
-			return false;
+			return dispositionsAccessRight.HasPermission(permissionCodeName);
 		}
 
 		/// <summary>
@@ -726,20 +685,21 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="segregatedEntity">The segregated entity.</param>
 		/// <returns>Returns the combined <see cref="AccessRight"/>.</returns>
-		private AccessRight GetDispositionsAccessRight(User user, ISegregatedEntity segregatedEntity) 
+		private AccessRight GetDispositionsAccessRight(User user, ISegregatedEntity segregatedEntity)
+			=> GetDispositionsAccessRight(user, segregatedEntity.SegregationID);
+
+		/// <summary>
+		/// Get the access right that stems from the <see cref="User.Dispositions"/> of
+		/// a <see cref="User"/> over a segregation..
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="segregationID">The ID of the segregation.</param>
+		/// <returns>Returns the combined <see cref="AccessRight"/>.</returns>
+		private AccessRight GetDispositionsAccessRight(User user, long segregationID)
 		{
-			var relativeDispositionTypes = new List<DispositionType>(user.Dispositions.Count);
+			var dispositionsForSegregation = user.GetDispositionsBySegregationID(segregationID);
 
-			foreach (var disposition in user.Dispositions)
-			{
-				if (segregatedEntity.SegregationID != disposition.SegregationID) continue;
-
-				relativeDispositionTypes.Add(disposition.Type);
-			}
-
-			var dispositionTypesAccessRight = GetAccessRightOfDispositionTypes(relativeDispositionTypes);
-
-			return dispositionTypesAccessRight;
+			return GetAccessRightOfDispositionTypes(dispositionsForSegregation.Select(d => d.Type));
 		}
 
 		#endregion
