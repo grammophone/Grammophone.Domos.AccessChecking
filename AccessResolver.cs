@@ -94,50 +94,6 @@ namespace Grammophone.Domos.AccessChecking
 		#region Basic access rights combination
 
 		/// <summary>
-		/// Get the access right derived from the user's roles,
-		/// including those speified in <see cref="User.Roles"/> proeprty of the <see cref="User"/>
-		/// and those implied by <see cref="PermissionsSetup.DefaultRolesForAuthenticated"/>
-		/// or <see cref="PermissionsSetup.DefaultRolesForAnonymous"/>.
-		/// </summary>
-		/// <param name="user">The user whose set of specified and implied roles to check.</param>
-		/// <returns>Returns the combined access right.</returns>
-		public AccessRight GetRolesAccessRight(U user)
-		{
-			if (user == null) throw new ArgumentNullException(nameof(user));
-
-			// Combine default roles and user roles.
-
-			IReadOnlyList<string> defaultRoleCodeNames;
-
-			if (user.IsAnonymous)
-			{
-				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAnonymous;
-			}
-			else
-			{
-				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAuthenticated;
-			}
-
-			string[] roleCodeNames = new string[user.Roles.Count + defaultRoleCodeNames.Count];
-
-			int i = 0;
-
-			// Add default roles.
-			for (i = 0; i < defaultRoleCodeNames.Count; i++)
-			{
-				roleCodeNames[i] = defaultRoleCodeNames[i];
-			}
-
-			// Add user roles.
-			foreach (var role in user.Roles)
-			{
-				roleCodeNames[i++] = role.CodeName;
-			}
-
-			return rolesAccessRightsCache.Get(new EquatableReadOnlyBag<string>(roleCodeNames));
-		}
-
-		/// <summary>
 		/// Get the combined access right of a set of disposition types.
 		/// </summary>
 		/// <param name="dispositionTypes">The set of disposition types.</param>
@@ -697,6 +653,8 @@ namespace Grammophone.Domos.AccessChecking
 		/// <returns>Returns the combined <see cref="AccessRight"/>.</returns>
 		private AccessRight GetDispositionsAccessRight(User user, long segregationID)
 		{
+			if (user.RegistrationStatus == RegistrationStatus.Revoked) return nullAccessRight;
+
 			var dispositionsForSegregation = user.GetDispositionsBySegregationID(segregationID);
 
 			var activeDispositionTypes = from d in dispositionsForSegregation
@@ -704,6 +662,52 @@ namespace Grammophone.Domos.AccessChecking
 																	 select d.Type;
 
 			return GetAccessRightOfDispositionTypes(activeDispositionTypes);
+		}
+
+		/// <summary>
+		/// Get the access right derived from the user's roles,
+		/// including those speified in <see cref="User.Roles"/> proeprty of the <see cref="User"/>
+		/// and those implied by <see cref="PermissionsSetup.DefaultRolesForAuthenticated"/>
+		/// or <see cref="PermissionsSetup.DefaultRolesForAnonymous"/>.
+		/// </summary>
+		/// <param name="user">The user whose set of specified and implied roles to check.</param>
+		/// <returns>Returns the combined access right.</returns>
+		private AccessRight GetRolesAccessRight(U user)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+
+			if (user.RegistrationStatus == RegistrationStatus.Revoked) return nullAccessRight;
+
+			// Combine default roles and user roles.
+
+			IReadOnlyList<string> defaultRoleCodeNames;
+
+			if (user.IsAnonymous)
+			{
+				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAnonymous;
+			}
+			else
+			{
+				defaultRoleCodeNames = lazyAccessMapper.Value.DefaultRolesForAuthenticated;
+			}
+
+			string[] roleCodeNames = new string[user.Roles.Count + defaultRoleCodeNames.Count];
+
+			int i = 0;
+
+			// Add default roles.
+			for (i = 0; i < defaultRoleCodeNames.Count; i++)
+			{
+				roleCodeNames[i] = defaultRoleCodeNames[i];
+			}
+
+			// Add user roles.
+			foreach (var role in user.Roles)
+			{
+				roleCodeNames[i++] = role.CodeName;
+			}
+
+			return rolesAccessRightsCache.Get(new EquatableReadOnlyBag<string>(roleCodeNames));
 		}
 
 		#endregion
