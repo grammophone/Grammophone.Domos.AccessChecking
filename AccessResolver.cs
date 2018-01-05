@@ -699,7 +699,11 @@ namespace Grammophone.Domos.AccessChecking
 		{
 			var dispositionsForSegregation = user.GetDispositionsBySegregationID(segregationID);
 
-			return GetAccessRightOfDispositionTypes(dispositionsForSegregation.Select(d => d.Type));
+			var activeDispositionTypes = from d in dispositionsForSegregation
+																	 where d.Status != DispositionStatus.Revoked
+																	 select d.Type;
+
+			return GetAccessRightOfDispositionTypes(activeDispositionTypes);
 		}
 
 		#endregion
