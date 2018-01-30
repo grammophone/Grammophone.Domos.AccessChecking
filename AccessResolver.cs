@@ -549,7 +549,7 @@ namespace Grammophone.Domos.AccessChecking
 		/// <param name="user">The user.</param>
 		/// <param name="stateful">The stateful instance.</param>
 		/// <param name="statePath">The state path to execute.</param>
-		public bool CanExecuteStatePath<ST>(U user, IStateful<U, ST> stateful, StatePath statePath)
+		public bool CanUserExecuteStatePath<ST>(U user, IStateful<U, ST> stateful, StatePath statePath)
 			where ST : StateTransition<U>
 		{
 			if (user == null) throw new ArgumentNullException(nameof(user));
@@ -561,14 +561,40 @@ namespace Grammophone.Domos.AccessChecking
 
 			var rolesAccessRight = GetRolesAccessRight(user);
 
-			var rolesStatefulRight = rolesAccessRight.GetEntityRight(stateful);
-
 			if (rolesAccessRight.SupportsStatePath(statePath))
 				return true;
 
 			if (stateful is ISegregatedEntity segregatedStateful)
 			{
 				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedStateful);
+
+				return dispositionsAccessRight.SupportsStatePath(statePath);
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a user can execute a <see cref="StatePath"/> in general.
+		/// The user must alse have read and write access rights to a stateful object in order to be allowed
+		/// state path execution.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="statePath">The state path to execute.</param>
+		/// <param name="segregation">Optional segregation where the stateful object may belong.</param>
+		public bool CanUserExecuteStatePath(U user, StatePath statePath, Segregation<U> segregation = null)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (statePath == null) throw new ArgumentNullException(nameof(statePath));
+
+			var rolesAccessRight = GetRolesAccessRight(user);
+
+			if (rolesAccessRight.SupportsStatePath(statePath))
+				return true;
+
+			if (segregation != null)
+			{
+				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregation);
 
 				return dispositionsAccessRight.SupportsStatePath(statePath);
 			}
