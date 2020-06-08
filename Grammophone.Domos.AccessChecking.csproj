@@ -1,104 +1,35 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6A1FB39A-F476-48BA-8A58-C398E7E0C558}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Grammophone.Domos.AccessChecking</RootNamespace>
-    <AssemblyName>Grammophone.Domos.AccessChecking</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyTitle>Grammophone.Domos.AccessChecking</AssemblyTitle>
+    <Product>Grammophone.Domos.AccessChecking</Product>
+    <Copyright>Copyright ©  2016</Copyright>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <DocumentationFile>bin\$(Configuration)\Grammophone.Domos.AccessChecking.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Grammophone.Domos.AccessChecking.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Grammophone.Domos.AccessChecking.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\EntityAccess.cs" />
-    <Compile Include="Configuration\EntityAccesses.cs" />
-    <Compile Include="Configuration\ManagerAccess.cs" />
-    <Compile Include="Configuration\ManagerAccesses.cs" />
-    <Compile Include="Configuration\Permission.cs" />
-    <Compile Include="Configuration\Reference.cs" />
-    <Compile Include="Configuration\References.cs" />
-    <Compile Include="Configuration\StatePathAccess.cs" />
-    <Compile Include="Configuration\StatePathAccesses.cs" />
-    <Compile Include="IPermissionsSetupProvider.cs" />
-    <Compile Include="AccessResolver.cs" />
-    <Compile Include="AccessRight.cs" />
-    <Compile Include="AccessMapper.cs" />
-    <Compile Include="EntityRight.cs" />
-    <Compile Include="Configuration\PermissionAssignments.cs" />
-    <Compile Include="Configuration\PermissionAssignment.cs" />
-    <Compile Include="Configuration\PermissionsSetup.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XamlPermissionsSetupProvider.cs" />
+    <ProjectReference Include="..\Grammophone.Caching\Grammophone.Caching.csproj" />
+    <ProjectReference Include="..\Grammophone.Configuration\Grammophone.Configuration.csproj" />
+    <ProjectReference Include="..\Grammophone.DataAccess\Grammophone.DataAccess.csproj" />
+    <ProjectReference Include="..\Grammophone.Domos.DataAccess\Grammophone.Domos.DataAccess.csproj" />
+    <ProjectReference Include="..\Grammophone.Domos.Domain\Grammophone.Domos.Domain.csproj" />
+    <ProjectReference Include="..\Grammophone.GenericContentModel\Grammophone.GenericContentModel.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Grammophone.Caching\Grammophone.Caching.csproj">
-      <Project>{2c834c5b-aa21-43fa-826e-398ab4de25ac}</Project>
-      <Name>Grammophone.Caching</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Grammophone.Configuration\Grammophone.Configuration.csproj">
-      <Project>{0f7811fd-6162-4813-9c55-6c43e67308b0}</Project>
-      <Name>Grammophone.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Grammophone.DataAccess\Grammophone.DataAccess.csproj">
-      <Project>{c9030969-1247-4ee9-bf68-782c1d676c8f}</Project>
-      <Name>Grammophone.DataAccess</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Grammophone.Domos.DataAccess\Grammophone.Domos.DataAccess.csproj">
-      <Project>{02d58dc8-ab2f-4120-88d7-358b2456f58f}</Project>
-      <Name>Grammophone.Domos.DataAccess</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Grammophone.Domos.Domain\Grammophone.Domos.Domain.csproj">
-      <Project>{d758ee48-75df-42d6-b6d4-9fabdae41f1c}</Project>
-      <Name>Grammophone.Domos.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Grammophone.GenericContentModel\Grammophone.GenericContentModel.csproj">
-      <Project>{79d2d4c7-c8de-4f11-93ed-aa4e4d2fc974}</Project>
-      <Name>Grammophone.GenericContentModel</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+	<ItemGroup>
+		<None Remove=".git" />
+		<None Remove=".gitignore" />
+	</ItemGroup>
 </Project>
