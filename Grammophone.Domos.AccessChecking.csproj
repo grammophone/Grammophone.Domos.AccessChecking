@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{6A1FB39A-F476-48BA-8A58-C398E7E0C558}</ProjectGuid>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp3.1;</TargetFrameworks>
     <AssemblyTitle>Grammophone.Domos.AccessChecking</AssemblyTitle>
     <Product>Grammophone.Domos.AccessChecking</Product>
     <Copyright>Copyright ©  2016</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <DocumentationFile>bin\$(Configuration)\Grammophone.Domos.AccessChecking.XML</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Grammophone.Domos.AccessChecking.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
