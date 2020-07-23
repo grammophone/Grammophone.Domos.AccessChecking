@@ -173,6 +173,26 @@ namespace Grammophone.Domos.AccessChecking
 				}
 			}
 
+			if (entity is IMultiSegregatedEntity multiSegregatedEntity)
+			{
+				foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+				{
+					var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
+
+					var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
+
+					if (dispositionsEntityRight.CanRead) return true;
+
+					if (dispositionsEntityRight.CanReadOwn && !rolesEntityRight.CanReadOwn)
+					{
+						if (entity is IOwnedEntity<U> ownedEntity)
+						{
+							if (ownedEntity.IsOwnedBy(user)) return true;
+						}
+					}
+				}
+			}
+
 			return false;
 		}
 
@@ -213,6 +233,26 @@ namespace Grammophone.Domos.AccessChecking
 					}
 				}
 			}
+
+			if (entity is IMultiSegregatedEntity multiSegregatedEntity)
+			{
+				foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+				{
+					var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
+
+					var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
+
+					if (dispositionsEntityRight.CanWrite) return true;
+
+					if (dispositionsEntityRight.CanWriteOwn && !rolesEntityRight.CanWriteOwn)
+					{
+						if (entity is IOwnedEntity<U> ownedEntity)
+						{
+							if (ownedEntity.IsOwnedBy(user)) return true;
+						}
+					}
+				}
+			}	
 
 			return false;
 		}
@@ -255,6 +295,26 @@ namespace Grammophone.Domos.AccessChecking
 				}
 			}
 
+			if (entity is IMultiSegregatedEntity multiSegregatedEntity)
+			{
+				foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+				{
+					var dispositionsΑccessRight = GetDispositionsAccessRight(user, segregationID);
+
+					var dispositionsEntityRight = dispositionsΑccessRight.GetEntityRight(entity);
+
+					if (dispositionsEntityRight.CanDelete) return true;
+
+					if (dispositionsEntityRight.CanDeleteOwn && !rolesEntityRight.CanDeleteOwn)
+					{
+						if (entity is IOwnedEntity<U> ownedEntity)
+						{
+							if (ownedEntity.IsOwnedBy(user)) return true;
+						}
+					}
+				}
+			}
+
 			return false;
 		}
 
@@ -292,6 +352,26 @@ namespace Grammophone.Domos.AccessChecking
 					if (entity is IOwnedEntity<U> ownedEntity)
 					{
 						if (ownedEntity.IsOwnedBy(user)) return true;
+					}
+				}
+			}
+
+			if (entity is IMultiSegregatedEntity multiSegregatedEntity)
+			{
+				foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+				{
+					var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
+
+					var dispositionsEntityRight = dispositionsAccessRight.GetEntityRight(entity);
+
+					if (dispositionsEntityRight.CanCreate) return true;
+
+					if (dispositionsEntityRight.CanCreateOwn && !rolesEntityRight.CanCreateOwn)
+					{
+						if (entity is IOwnedEntity<U> ownedEntity)
+						{
+							if (ownedEntity.IsOwnedBy(user)) return true;
+						}
 					}
 				}
 			}
