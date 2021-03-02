@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{6A1FB39A-F476-48BA-8A58-C398E7E0C558}</ProjectGuid>
-    <TargetFrameworks>net472;net5.0;</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.1;</TargetFrameworks>
     <AssemblyTitle>Grammophone.Domos.AccessChecking</AssemblyTitle>
     <Product>Grammophone.Domos.AccessChecking</Product>
     <Copyright>Copyright ©  2016</Copyright>
