@@ -416,6 +416,38 @@ namespace Grammophone.Domos.AccessChecking
 
 		/// <summary>
 		/// Determine whether a manager is supported via the user's roles alone or optionally
+		/// via her dispositions against a multiple-segregated entity.
+		/// For proper performance, ensure that <see cref="User.Roles"/>,
+		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
+		/// are prefetched.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="managerType">The .NET class type of the manager.</param>
+		/// <param name="multiSegregatedEntity">The multiple segregated entity to check user dispositions against.</param>
+		public bool CanUserAccessManager(U user, Type managerType, IMultiSegregatedEntity multiSegregatedEntity)
+		{
+			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (managerType == null) throw new ArgumentNullException(nameof(managerType));
+			if (multiSegregatedEntity == null) throw new ArgumentNullException(nameof(multiSegregatedEntity));
+
+			var rolesAccessRight = GetRolesAccessRight(user);
+
+			// If roles alone yield access right to the manager, return true.
+			if (rolesAccessRight.SupportsManager(managerType)) return true;
+
+			foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+			{
+				// Determine whether a disposition yields access right to the manager.
+				var dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
+
+				if (dispositionsAccessRight.SupportsManager(managerType)) return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a manager is supported via the user's roles alone or optionally
 		/// via her dispositions against a segregation.
 		/// For proper performance, ensure that <see cref="User.Roles"/>,
 		/// <see cref="User.Dispositions"/> and their <see cref="Disposition.Type"/>
@@ -648,7 +680,18 @@ namespace Grammophone.Domos.AccessChecking
 			{
 				AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregatedStateful);
 
-				return dispositionsAccessRight.SupportsStatePath(statePath);
+				if (dispositionsAccessRight.SupportsStatePath(statePath)) return true;
+			}
+
+			if (stateful is IMultiSegregatedEntity multiSegregatedEntity)
+			{
+				foreach (long segregationID in multiSegregatedEntity.SegregationIDs)
+				{
+					AccessRight dispositionsAccessRight = GetDispositionsAccessRight(user, segregationID);
+
+					if (dispositionsAccessRight.SupportsStatePath(statePath)) return true;
+
+				}
 			}
 
 			return false;
