@@ -1,5 +1,10 @@
 # Grammophone.Domos.AccessChecking
-This dual-target .NET Framework and .NET Core 3.1 library implements access checking for the Domos integrated session system.
 
-It is part of the 3rd generation of the Domos integrated session system which will support SaaS, 
-workflow and accounting scenarios and is currently under development, not ready for production at this stage.
+`Grammophone.Domos.AccessChecking` implements access checking for the Domos integrated session system.
+
+The logic layer uses access resolvers and access-checking exceptions to enforce entity access, manager access and workflow path execution rights.
+
+## Documentation
+
+- [Overview](documentation/overview.md)
+- [Access layers](documentation/access-layers.md)
