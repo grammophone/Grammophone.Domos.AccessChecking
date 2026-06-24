@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Access Checking Overview
 
 `Grammophone.Domos.AccessChecking` is the policy evaluation layer for Domos.
@@ -42,3 +43,12 @@ For entities implementing `ISegregatedEntity`, the resolver checks disposition r
 `AccessResolver<U>` caches combined rights for sets of role code names and disposition type code names. This keeps repeated checks cheap after the permissions setup has been loaded.
 
 Applications should still prefetch `User.Roles`, `User.Dispositions` and disposition types when performing many access checks in a batch.
+=======
+# Overview
+
+`Grammophone.Domos.AccessChecking` provides access-checking services used by the Domos logic layer.
+
+The library works with the domain security ontology: roles, dispositions, ownership, segregation, managers and workflow state paths. Logic sessions use access resolvers to decide whether the active or acting user may perform an operation.
+
+Concrete applications are expected to supply or configure access rules suitable for their business model.
+>>>>>>> refs/remotes/origin/master
