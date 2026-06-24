@@ -1,5 +1,19 @@
 # Grammophone.Domos.AccessChecking
-This dual-target .NET Framework and .NET Core 3.1 library implements access checking for the Domos integrated session system.
 
-It is part of the 3rd generation of the Domos integrated session system which will support SaaS, 
-workflow and accounting scenarios and is currently under development, not ready for production at this stage.
+`Grammophone.Domos.AccessChecking` implements the permission resolver used by Domos logic sessions and workflow managers.
+
+It reads a `PermissionsSetup`, combines permissions assigned to roles and disposition types, and answers questions such as whether a user may read an entity, obtain a manager or execute a workflow path.
+
+## Main Features
+
+- `AccessResolver<U>` evaluates entity, manager and state-path access for users derived from `User`.
+- `AccessMapper` loads and indexes permission setup data.
+- `IPermissionsSetupProvider` abstracts the source of the permission setup.
+- `XamlPermissionsSetupProvider` loads the default XAML permission format.
+- Configuration objects model permissions, assignments, entity access, manager access and state-path access.
+
+## Documentation
+
+- [Overview](documentation/overview.md)
+- [Permissions setup](documentation/permissions-setup.md)
+- [Music domain authorization example](documentation/music-authorization.md)
